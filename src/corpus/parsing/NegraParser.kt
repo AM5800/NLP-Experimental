@@ -1,4 +1,4 @@
-package corpusParsers
+package corpus.parsing
 
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -7,6 +7,7 @@ import javax.xml.parsers.SAXParserFactory
 
 public class NegraParser {
     private class SaxHandler(private val handler: CorpusParserHandler) : DefaultHandler() {
+
         private var inSentence = false
         override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
             if (qName == "s") {
@@ -37,6 +38,8 @@ public class NegraParser {
     public fun parse(path : String, handler: CorpusParserHandler) {
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
+        handler.beginCorpus(path)
         parser.parse(path, SaxHandler(handler))
+        handler.endCorpus()
     }
 }
