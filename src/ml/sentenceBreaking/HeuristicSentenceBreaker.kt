@@ -2,7 +2,7 @@ package ml.sentenceBreaking
 
 import java.util.*
 
-public data class Sentence(public val start : Int, public val end : Int)
+public data class SentenceBounds(public val start: Int, public val end: Int)
 
 public class HeuristicSentenceBreaker {
 
@@ -12,32 +12,33 @@ public class HeuristicSentenceBreaker {
         this.nonBreakers.addAll(nonBreakers.map { it.toLowerCase().trimEnd('.') })
     }
 
-    public fun breakText(text : String) : Iterable<Sentence> {
-        var searchStartIndex = 0
+    public fun breakText(text: String): Iterable<SentenceBounds> {
         var sentenceStart = 0
 
-        val result = arrayListOf<Sentence>()
+        val result = arrayListOf<SentenceBounds>()
 
-        while (true) {
-            val index = text.indexOf('.', searchStartIndex)
-            if (index == -1) break // TODO: check last sentence
-
-            if (isSentence(text, sentenceStart, index)) {
-                result.add(Sentence(sentenceStart, index))
-                sentenceStart = index + 1
+        text.forEachIndexed { i, c ->
+            if (SentenceBreakerUtils.isSentenceEndChar(c)) {
+                if (isSentence(text, sentenceStart, i)) {
+                    result.add(SentenceBounds(sentenceStart, i))
+                    sentenceStart = i + 1 // TODO shouldn't we omit spaces in front?
+                }
             }
-            searchStartIndex = index + 1
         }
 
         return result
     }
 
     private fun isSentence(text: String, sentenceStart: Int, probableSentenceEnd: Int): Boolean {
+        if (probableSentenceEnd == text.length - 1 && probableSentenceEnd - sentenceStart > 0) return true
         val prevWord = findPrevWord(text, sentenceStart, probableSentenceEnd)
         if (prevWord == null) return false
 
-        val breaks = !nonBreakers.contains(prevWord.toLowerCase())
-        return breaks
+        if (nonBreakers.contains(prevWord.toLowerCase())) return false
+
+        if (SentenceBreakerUtils.isNumber(prevWord)) return false
+
+        return true
     }
 
     private fun findPrevWord(text: String, sentenceStart: Int, probableSentenceEnd: Int): String? {

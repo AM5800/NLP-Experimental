@@ -19,12 +19,8 @@ public class SentenceBreakerTestDataMaker : CorpusParserHandler() {
     }
 
     override fun endSentence() {
-        if (!isSentenceEndChar(builder.last())) builder.append('.')
+        if (!SentenceBreakerUtils.isSentenceEndChar(builder.last())) builder.append('.')
         sentenceBreaks.add(builder.length - 1)
-    }
-
-    private fun isSentenceEndChar(ch : Char) : Boolean {
-        return ch == '.' || ch == '?' || ch == '!'
     }
 
     override fun endCorpus() {
