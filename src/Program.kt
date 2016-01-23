@@ -1,28 +1,27 @@
 import corpus.CorpusRange
 import corpus.CorpusSplittingHandler
-import corpus.ExternalShuffler
 import corpus.parsing.CorpusParserHandler
 import corpus.parsing.NegraParser
 import ml.sentenceBreaking.HeuristicSentenceBreaker
+import ml.sentenceBreaking.SentenceBreakerPerformanceTester
+import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler
-import java.nio.file.Paths
-import java.util.*
 
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
     val breaker = HeuristicSentenceBreaker()
     val handler = SentenceBreakingHandler(breaker)
     val negraParser = NegraParser()
 
-    val learningSet = CorpusRange(0.0, 0.7)
-    val validationSet = CorpusRange(0.7, 1.0)
+    val learningHandler = CorpusSplittingHandler(handler, CorpusRange(0.0, 0.7))
 
-    val corpusSplittingHandler = CorpusSplittingHandler(handler, learningSet)
+    val maker = SentenceBreakerTestDataMaker()
+    val validationHandler = CorpusSplittingHandler(maker, CorpusRange(0.7, 1.0))
 
-    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", corpusSplittingHandler)
+    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", learningHandler)
+    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", validationHandler)
 
-    for (nonBreaker in handler.nonBreakers) {
-        println("Non breaker: " + nonBreaker)
-    }
+    val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
+    println("Sentence breaking performance: $performance")
 }
 
 class OutputHandler : CorpusParserHandler() {
