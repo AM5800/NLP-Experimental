@@ -5,7 +5,7 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.SAXParserFactory
 
 
-public class NegraParser {
+public class NegraParser : CorpusParser {
     private class SaxHandler(private val handler: CorpusParserHandler) : DefaultHandler() {
 
         private var inSentence = false
@@ -35,7 +35,7 @@ public class NegraParser {
         }
     }
 
-    public fun parse(path : String, handler: CorpusParserHandler) {
+    public override fun parse(path : String, handler: CorpusParserHandler) {
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
         handler.beginCorpus(path)

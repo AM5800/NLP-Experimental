@@ -1,58 +1,28 @@
+import corpus.CorpusRange
+import corpus.CorpusSplittingHandler
 import corpus.ExternalShuffler
 import corpus.parsing.CorpusParserHandler
 import corpus.parsing.NegraParser
+import ml.sentenceBreaking.HeuristicSentenceBreaker
+import ml.sentenceBreaking.SentenceBreakingHandler
 import java.nio.file.Paths
 import java.util.*
 
 fun main(args : Array<String>) {
-    System.out.println(Paths.get(".").toAbsolutePath().normalize().toString());
-
-    val handler = SentenceBreakingHandler()
+    val breaker = HeuristicSentenceBreaker()
+    val handler = SentenceBreakingHandler(breaker)
     val negraParser = NegraParser()
-    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", handler)
-    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", ExternalShuffler())
+
+    val learningSet = CorpusRange(0.0, 0.7)
+    val validationSet = CorpusRange(0.7, 1.0)
+
+    val corpusSplittingHandler = CorpusSplittingHandler(handler, learningSet)
+
+    negraParser.parse("data\\corpuses\\tiger_release_aug07.corrected.16012013.xml", corpusSplittingHandler)
 
     for (nonBreaker in handler.nonBreakers) {
         println("Non breaker: " + nonBreaker)
     }
-}
-
-class SentenceBreakingHandler : CorpusParserHandler() {
-    private var previousWord : String? = null
-    private var currentNonBreaker : String? = null
-    public val nonBreakers = HashSet<String>()
-
-    override fun startSentence(id: String) {
-        previousWord = null
-        currentNonBreaker = null
-    }
-
-    override fun word(word: String, lemma: String, pos: String?) {
-
-        if (word.contains(".")) nonBreakers.add(word)
-        if (lemma.contains(".")) nonBreakers.add(word)
-
-        val prev = previousWord
-        val breaker = currentNonBreaker
-
-        if (pos == "--" || pos?.startsWith("$") == true) {
-            currentNonBreaker = null
-        }
-        else if (breaker != null) {
-            nonBreakers.add(breaker)
-        }
-
-        if (prev != null && word == ".") {
-            currentNonBreaker = prev
-        }
-
-        previousWord = word
-    }
-
-    override fun endSentence() {
-
-    }
-
 }
 
 class OutputHandler : CorpusParserHandler() {

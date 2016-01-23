@@ -1,21 +1,11 @@
 package corpus
 
 import corpus.parsing.CorpusParserHandler
+import util.changeExtension
+import util.shuffle
 import java.io.File
 import java.io.PrintWriter
 import java.util.*
-
-public fun <T> List<T>.shuffle(): List<T> {
-    val random = Random()
-    val list = this.toArrayList()
-    for (i in (list.count() - 1) downTo 1) {
-        val j = random.nextInt(i + 1)
-        val tmp = list[i]
-        list[i] = list[j]
-        list[j] = tmp
-    }
-    return list
-}
 
 public class ExternalShuffler : CorpusParserHandler() {
     private var path: File? = null
@@ -34,7 +24,7 @@ public class ExternalShuffler : CorpusParserHandler() {
 
         val path = this.path!!
 
-        val newPath = File(path.parentFile, path.nameWithoutExtension + ".shuffled")
+        val newPath = path.changeExtension(".shuffled")
 
         PrintWriter(newPath, "UTF-8").use { writer ->
             writer.println(shuffled.size)
