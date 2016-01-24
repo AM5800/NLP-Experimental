@@ -1,10 +1,10 @@
 package ml.sentenceBreaking
 
-import corpus.parsing.CorpusParserHandler
+import corpus.parsing.TreebankParserHandler
 import java.util.*
 import java.util.regex.Pattern
 
-class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : CorpusParserHandler() {
+class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : TreebankParserHandler() {
     public val nonBreakers = HashSet<String>()
     private val romanNumberRegex = Pattern.compile("[IVXLCDM]+\\.")
 
@@ -26,7 +26,7 @@ class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : C
         return !isRomanNumber
     }
 
-    override fun endCorpus() {
+    override fun endTreebank() {
         breaker.setNonBreakingWords(nonBreakers)
     }
 }

@@ -1,17 +1,17 @@
 package corpus
 
-import corpus.parsing.CorpusParserHandler
+import corpus.parsing.TreebankParserHandler
 import util.changeExtension
 import util.shuffle
 import java.io.File
 import java.io.PrintWriter
 import java.util.*
 
-public class ExternalShuffler : CorpusParserHandler() {
+public class ExternalShuffler : TreebankParserHandler() {
     private var path: File? = null
     private val ids = ArrayList<String>()
 
-    override fun beginCorpus(path: String) {
+    override fun beginTreebank(path: String) {
         this.path = File(path)
     }
 
@@ -19,7 +19,7 @@ public class ExternalShuffler : CorpusParserHandler() {
         ids.add(id)
     }
 
-    override fun endCorpus() {
+    override fun endTreebank() {
         val shuffled = ids.shuffle()
 
         val path = this.path!!

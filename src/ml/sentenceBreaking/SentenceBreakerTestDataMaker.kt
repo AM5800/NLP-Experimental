@@ -1,15 +1,15 @@
 package ml.sentenceBreaking
 
-import corpus.parsing.CorpusParserHandler
+import corpus.parsing.TreebankParserHandler
 
 public class SentenceBreakerTestData(public val text : String, public val sentenceBreaks : List<Int>)
 
 
-public class SentenceBreakerTestDataMaker : CorpusParserHandler() {
+public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     private val builder = StringBuilder()
     private val sentenceBreaks = arrayListOf<Int>()
 
-    override fun beginCorpus(path: String) {
+    override fun beginTreebank(path: String) {
         builder.setLength(0)
     }
 
@@ -23,8 +23,8 @@ public class SentenceBreakerTestDataMaker : CorpusParserHandler() {
         sentenceBreaks.add(builder.length - 1)
     }
 
-    override fun endCorpus() {
-        super.endCorpus()
+    override fun endTreebank() {
+        super.endTreebank()
     }
 
     public fun getTestData() : SentenceBreakerTestData {

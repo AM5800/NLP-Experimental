@@ -1,32 +1,19 @@
 package corpus
 
-import corpus.parsing.CorpusParserHandler
+import corpus.parsing.TreebankParserHandler
 import util.changeExtension
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.util.*
 
-public class CorpusRange(public val start: Double, public val end: Double) {
-    init {
-        if (start < 0) throw IllegalArgumentException("start can't be less than zero")
-        if (end > 1) throw IllegalArgumentException("end can't be more than one")
-        if (start > end) throw IllegalArgumentException("start can't be more than end")
-    }
 
-    fun accept(i: Int, n: Int): Boolean {
-        val value = i.toDouble() / n
-        return value > start && value <= end
-    }
-}
-
-
-public class CorpusSplittingHandler(private val origin: CorpusParserHandler,
-                                    private val range: CorpusRange) : CorpusParserHandler() {
+public class TreebankSplittingHandler(private val origin: TreebankParserHandler,
+                                      private val range: RelativeRange) : TreebankParserHandler() {
     private val acceptedIds = HashSet<String>()
     private var ignore = false
 
-    override fun beginCorpus(path: String) {
+    override fun beginTreebank(path: String) {
         val shufflePath = File(path).changeExtension(".shuffled")
 
         BufferedReader(FileReader(shufflePath)).use { reader ->
@@ -36,7 +23,7 @@ public class CorpusSplittingHandler(private val origin: CorpusParserHandler,
                 if (line != null && range.accept(i, n)) acceptedIds.add(line)
             })
         }
-        origin.beginCorpus(path)
+        origin.beginTreebank(path)
     }
 
     override fun startSentence(id: String) {
@@ -53,7 +40,7 @@ public class CorpusSplittingHandler(private val origin: CorpusParserHandler,
         if (!ignore) origin.endSentence()
     }
 
-    override fun endCorpus() {
-        origin.endCorpus()
+    override fun endTreebank() {
+        origin.endTreebank()
     }
 }
