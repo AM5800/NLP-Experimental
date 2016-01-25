@@ -19,7 +19,7 @@ class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : T
         }
     }
 
-    private fun check(word : String) : Boolean {
+    private fun check(word: String): Boolean {
         if (word.first().isDigit()) return false
         if (!word.endsWith('.')) return false
         val isRomanNumber = romanNumberRegex.matcher(word).matches()

@@ -6,6 +6,7 @@ import ml.sentenceBreaking.HeuristicSentenceBreaker
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler
+import java.io.File
 
 fun main(args: Array<String>) {
     val parsers = TreebankParsersSet()
@@ -21,8 +22,8 @@ fun main(args: Array<String>) {
 
     val maker = SentenceBreakerTestDataMaker()
 
-    parsers.parse("data\\corpuses\\", learningRange, handler)
-    parsers.parse("data\\corpuses\\", validationRange, maker)
+    parsers.parse(File("data\\corpuses\\"), learningRange, handler)
+    parsers.parse(File("data\\corpuses\\"), validationRange, maker)
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")

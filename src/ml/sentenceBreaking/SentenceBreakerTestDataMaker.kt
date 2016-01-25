@@ -1,15 +1,16 @@
 package ml.sentenceBreaking
 
 import corpus.parsing.TreebankParserHandler
+import java.io.File
 
-public class SentenceBreakerTestData(public val text : String, public val sentenceBreaks : List<Int>)
+public class SentenceBreakerTestData(public val text: String, public val sentenceBreaks: List<Int>)
 
 
 public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     private val builder = StringBuilder()
     private val sentenceBreaks = arrayListOf<Int>()
 
-    override fun beginTreebank(path: String) {
+    override fun beginTreebank(path: File) {
         builder.setLength(0)
     }
 
@@ -27,7 +28,7 @@ public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
         super.endTreebank()
     }
 
-    public fun getTestData() : SentenceBreakerTestData {
+    public fun getTestData(): SentenceBreakerTestData {
         return SentenceBreakerTestData(builder.toString(), sentenceBreaks)
     }
 }

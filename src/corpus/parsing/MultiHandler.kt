@@ -1,12 +1,14 @@
 package corpus.parsing
 
+import java.io.File
+
 class MultiHandler(private val handlers: Array<out TreebankParserHandler>) : TreebankParserHandler() {
-    override fun beginTreebank(path: String) {
+    override fun beginTreebank(path: File) {
         handlers.forEach { it.beginTreebank(path) }
     }
 
-    override fun startSentence(id: String) {
-        handlers.forEach { it.startSentence(id) }
+    override fun beginSentence(id: String) {
+        handlers.forEach { it.beginSentence(id) }
     }
 
     override fun word(word: String, lemma: String, pos: String?) {

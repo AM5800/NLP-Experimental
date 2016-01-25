@@ -1,6 +1,7 @@
 package corpus.parsing
 
 import corpus.RelativeRange
+import corpus.ShufflingHandler
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import util.changeExtension
@@ -15,9 +16,9 @@ public class NegraParser : TreebankParser {
     override val ParserId: String = "NEGRA4"
 
     private class SaxHandler(private val handler: TreebankParserHandler,
-                             expectedItems: List<String>) : DefaultHandler() {
+                             expectedItems: List<String>? = null) : DefaultHandler() {
 
-        private val expectedSentenceIds = HashSet<String>(expectedItems)
+        private val expectedSentenceIds = if (expectedItems == null) null else HashSet<String>(expectedItems)
 
         private var skipMode = false
         private var inSentence = false
@@ -25,8 +26,8 @@ public class NegraParser : TreebankParser {
         override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
             if (qName == "s") {
                 val id = attributes?.getValue("id")!!.trim()
-                if (expectedSentenceIds.contains(id)) {
-                    handler.startSentence(id)
+                if (expectedSentenceIds == null || expectedSentenceIds.contains(id)) {
+                    handler.beginSentence(id)
                     skipMode = false
                 } else skipMode = true
                 inSentence = true
@@ -51,10 +52,10 @@ public class NegraParser : TreebankParser {
         }
     }
 
-    override fun parse(path: String, range: RelativeRange, handler: TreebankParserHandler) {
+    override fun parse(path: File, range: RelativeRange, handler: TreebankParserHandler) {
 
-        val shuffleFile = File(path).changeExtension("shuffled")
-        if (!shuffleFile.exists()) createShuffleFile(shuffleFile)
+        val shuffleFile = path.changeExtension("shuffled")
+        if (!shuffleFile.exists()) createShuffleFile(shuffleFile, path)
 
         val expectedItems = loadShuffleInfo(shuffleFile, range)
 
@@ -65,8 +66,12 @@ public class NegraParser : TreebankParser {
         handler.endTreebank()
     }
 
-    private fun createShuffleFile(shuffleFile: File) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun createShuffleFile(shuffleFile: File, treebankPath: File) {
+        val factory = SAXParserFactory.newInstance()
+        val parser = factory.newSAXParser()
+        val handler = ShufflingHandler()
+        parser.parse(treebankPath, SaxHandler(handler))
+        handler.save(shuffleFile)
     }
 
     private fun loadShuffleInfo(shuffleFile: File, range: RelativeRange): List<String> {

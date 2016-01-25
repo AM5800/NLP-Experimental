@@ -16,16 +16,15 @@ class TreebankParsersSet {
         registeredParsers.add(parser)
     }
 
-    fun parse(path: String, range: RelativeRange, vararg handlers: TreebankParserHandler) {
-        val file = File(path)
-        val fileList = file.listFiles { f -> f.extension.equals("treebank", true) }
+    fun parse(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
+        val fileList = path.listFiles { f -> f.extension.equals("treebank", true) }
 
         val datas = fileList.mapNotNull { tryParseInfo(it) }.filterNotNull()
 
         for (data in datas) {
             val parser = registeredParsers.first { it.ParserId.equals(data.formatId, true) }
             val treebankPath = File(path, data.relativePath)
-            parser.parse(treebankPath.absolutePath, range, MultiHandler(handlers))
+            parser.parse(treebankPath, range, MultiHandler(handlers))
         }
     }
 
