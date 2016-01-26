@@ -16,7 +16,8 @@ class TreexParser : TreebankParser {
     override val ParserId: String = "Treex"
 
     private class SaxHandler(private val handler: TreebankParserHandler,
-                             expectedItems: List<String>? = null) : DefaultHandler() {
+                             expectedItems: List<String>? = null,
+                             private val treebankName: String) : DefaultHandler() {
 
         private val expectedSentenceIds = if (expectedItems == null) null else HashSet<String>(expectedItems)
 
@@ -32,7 +33,7 @@ class TreexParser : TreebankParser {
             if (qName == "LM") ++lmLevel
 
             if (qName == "LM" && lmLevel == 1) {
-                val id = attributes?.getValue("id")!!
+                val id = makeId(attributes)
                 if (expectedSentenceIds == null || expectedSentenceIds.contains(id)) {
                     skipMode = false
                     handler.beginSentence(id)
@@ -42,6 +43,10 @@ class TreexParser : TreebankParser {
             if (!skipMode && lmLevel >= 1) {
                 if (qName == "form" || qName == "lemma" || qName == "tag") currentDataTag = qName
             }
+        }
+
+        private fun makeId(attributes: Attributes?): String {
+            return treebankName + attributes?.getValue("id")!!
         }
 
         override fun endElement(uri: String?, localName: String?, qName: String?) {
@@ -62,7 +67,6 @@ class TreexParser : TreebankParser {
     }
 
     override fun parse(path: File, range: RelativeRange, handler: TreebankParserHandler) {
-
         val treebankFiles = expandPath(path)
 
         val shuffleFile = path.changeExtension("shuffled")
@@ -73,11 +77,13 @@ class TreexParser : TreebankParser {
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
 
+        handler.beginTreebank(path)
         for (treebank in treebankFiles) {
             handler.beginTreebank(treebank)
-            parser.parse(treebank, SaxHandler(handler, expectedItems))
+            parser.parse(treebank, SaxHandler(handler, expectedItems, treebank.nameWithoutExtension))
             handler.endTreebank()
         }
+        handler.endTreebank()
     }
 
     private fun expandPath(path: File): List<File> {
@@ -90,7 +96,7 @@ class TreexParser : TreebankParser {
         val handler = ShufflingHandler()
 
         for (treebank in treebanks) {
-            parser.parse(treebank, SaxHandler(handler))
+            parser.parse(treebank, SaxHandler(handler, null, treebank.nameWithoutExtension))
         }
 
         handler.save(shuffleFile)

@@ -22,8 +22,10 @@ fun main(args: Array<String>) {
 
     val maker = SentenceBreakerTestDataMaker()
 
-    parsers.parse(File("data\\corpuses\\"), learningRange, handler)
-    parsers.parse(File("data\\corpuses\\"), validationRange, maker)
+    //    parsers.parseDirectory(File("data\\corpuses\\"), learningRange, handler)
+    //    parsers.parseDirectory(File("data\\corpuses\\"), validationRange, maker)
+    parsers.parse(File("data\\corpuses\\hamledt3.treebank"), learningRange, handler)
+    parsers.parse(File("data\\corpuses\\hamledt3.treebank"), validationRange, maker)
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")

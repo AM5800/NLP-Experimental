@@ -16,7 +16,7 @@ class TreebankParsersSet {
         registeredParsers.add(parser)
     }
 
-    fun parse(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
+    fun parseDirectory(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
         val fileList = path.listFiles { f -> f.extension.equals("treebank", true) }
 
         val datas = fileList.mapNotNull { tryParseInfo(it) }.filterNotNull()
@@ -45,6 +45,15 @@ class TreebankParsersSet {
             println(sw.toString())
             return null
         }
+    }
+
+    fun parse(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
+        var info = tryParseInfo(path)
+        if (info == null) return
+
+        val parser = registeredParsers.first { it.ParserId.equals(info.formatId, true) }
+        val treebankPath = File(path.parentFile, info.relativePath)
+        parser.parse(treebankPath, range, MultiHandler(handlers))
     }
 }
 
