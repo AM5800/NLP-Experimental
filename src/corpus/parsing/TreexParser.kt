@@ -1,6 +1,5 @@
 package corpus.parsing
 
-import corpus.RelativeRange
 import corpus.ShufflingHandler
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -16,12 +15,9 @@ class TreexParser : TreebankParser {
     override val ParserId: String = "Treex"
 
     private class SaxHandler(private val handler: TreebankParserHandler,
-                             expectedItems: List<String>? = null,
+                             private val shuffleInfo: HashMap<String, Int>?,
                              private val treebankName: String) : DefaultHandler() {
 
-        private val expectedSentenceIds = if (expectedItems == null) null else HashSet<String>(expectedItems)
-
-        private var skipMode = false
         private var lmLevel = 0
 
         private var form = ""
@@ -34,13 +30,10 @@ class TreexParser : TreebankParser {
 
             if (qName == "LM" && lmLevel == 1) {
                 val id = makeId(attributes)
-                if (expectedSentenceIds == null || expectedSentenceIds.contains(id)) {
-                    skipMode = false
-                    handler.beginSentence(id)
-                } else skipMode = true
+                handler.beginSentence(id, shuffleInfo?.get(id), shuffleInfo?.size)
             }
 
-            if (!skipMode && lmLevel >= 1) {
+            if (lmLevel >= 1) {
                 if (qName == "form" || qName == "lemma" || qName == "tag") currentDataTag = qName
             }
         }
@@ -66,13 +59,13 @@ class TreexParser : TreebankParser {
         }
     }
 
-    override fun parse(path: File, range: RelativeRange, handler: TreebankParserHandler) {
+    override fun parse(path: File, handler: TreebankParserHandler) {
         val treebankFiles = expandPath(path)
 
         val shuffleFile = path.changeExtension("shuffled")
         if (!shuffleFile.exists()) createShuffleFile(shuffleFile, treebankFiles)
 
-        val expectedItems = loadShuffleInfo(shuffleFile, range)
+        val shuffleInfo = loadShuffleInfo(shuffleFile)
 
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
@@ -80,7 +73,7 @@ class TreexParser : TreebankParser {
         handler.beginTreebank(path)
         for (treebank in treebankFiles) {
             handler.beginTreebank(treebank)
-            parser.parse(treebank, SaxHandler(handler, expectedItems, treebank.nameWithoutExtension))
+            parser.parse(treebank, SaxHandler(handler, shuffleInfo, treebank.nameWithoutExtension))
             handler.endTreebank()
         }
         handler.endTreebank()
@@ -102,13 +95,13 @@ class TreexParser : TreebankParser {
         handler.save(shuffleFile)
     }
 
-    private fun loadShuffleInfo(shuffleFile: File, range: RelativeRange): List<String> {
-        val result = ArrayList<String>()
+    private fun loadShuffleInfo(shuffleFile: File): HashMap<String, Int> {
+        val result = LinkedHashMap<String, Int>()
         BufferedReader(FileReader(shuffleFile)).use { reader ->
             val n = Integer.parseInt(reader.readLine())
             repeat(n, { i ->
                 val line = reader.readLine()?.trim()
-                if (line != null && range.accept(i, n)) result.add(line)
+                if (line != null) result.put(line, i)
             })
         }
         return result

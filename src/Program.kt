@@ -1,5 +1,6 @@
 import corpus.RelativeRange
 import corpus.parsing.NegraParser
+import corpus.parsing.RangeHandler
 import corpus.parsing.TreebankParsersSet
 import corpus.parsing.TreexParser
 import ml.sentenceBreaking.HeuristicSentenceBreaker
@@ -24,8 +25,7 @@ fun main(args: Array<String>) {
 
     //    parsers.parseDirectory(File("data\\corpuses\\"), learningRange, handler)
     //    parsers.parseDirectory(File("data\\corpuses\\"), validationRange, maker)
-    parsers.parse(File("data\\corpuses\\hamledt3.treebank"), learningRange, handler)
-    parsers.parse(File("data\\corpuses\\hamledt3.treebank"), validationRange, maker)
+    parsers.parse(File("data\\corpuses\\hamledt3.treebank"), RangeHandler(learningRange, handler), RangeHandler(validationRange, maker))
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")

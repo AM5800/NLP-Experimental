@@ -8,7 +8,7 @@ open class TreebankParserHandler {
     open fun beginTreebank(path: File) {
     }
 
-    open fun beginSentence(id: String) {
+    open fun beginSentence(id: String, sentenceNumber: Int?, totalSentences: Int?) {
     }
 
     open fun word(word: String, lemma: String, pos: String?) {

@@ -7,8 +7,8 @@ class MultiHandler(private val handlers: Array<out TreebankParserHandler>) : Tre
         handlers.forEach { it.beginTreebank(path) }
     }
 
-    override fun beginSentence(id: String) {
-        handlers.forEach { it.beginSentence(id) }
+    override fun beginSentence(id: String, sentenceNumber: Int?, totalSentences: Int?) {
+        handlers.forEach { it.beginSentence(id, sentenceNumber, totalSentences) }
     }
 
     override fun word(word: String, lemma: String, pos: String?) {

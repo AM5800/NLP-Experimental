@@ -1,6 +1,5 @@
 package corpus.parsing
 
-import corpus.RelativeRange
 import java.io.*
 import java.util.*
 
@@ -16,7 +15,7 @@ class TreebankParsersSet {
         registeredParsers.add(parser)
     }
 
-    fun parseDirectory(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
+    fun parseDirectory(path: File, vararg handlers: TreebankParserHandler) {
         val fileList = path.listFiles { f -> f.extension.equals("treebank", true) }
 
         val datas = fileList.mapNotNull { tryParseInfo(it) }.filterNotNull()
@@ -24,7 +23,7 @@ class TreebankParsersSet {
         for (data in datas) {
             val parser = registeredParsers.first { it.ParserId.equals(data.formatId, true) }
             val treebankPath = File(path, data.relativePath)
-            parser.parse(treebankPath, range, MultiHandler(handlers))
+            parser.parse(treebankPath, MultiHandler(handlers))
         }
     }
 
@@ -47,13 +46,13 @@ class TreebankParsersSet {
         }
     }
 
-    fun parse(path: File, range: RelativeRange, vararg handlers: TreebankParserHandler) {
+    fun parse(path: File, vararg handlers: TreebankParserHandler) {
         var info = tryParseInfo(path)
         if (info == null) return
 
         val parser = registeredParsers.first { it.ParserId.equals(info.formatId, true) }
         val treebankPath = File(path.parentFile, info.relativePath)
-        parser.parse(treebankPath, range, MultiHandler(handlers))
+        parser.parse(treebankPath, MultiHandler(handlers))
     }
 }
 

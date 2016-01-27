@@ -9,7 +9,7 @@ import java.util.*
 public class ShufflingHandler : TreebankParserHandler() {
     private val ids = ArrayList<String>()
 
-    override fun beginSentence(id: String) {
+    override fun beginSentence(id: String, sentenceNumber: Int?, totalSentences: Int?) {
         ids.add(id)
     }
 

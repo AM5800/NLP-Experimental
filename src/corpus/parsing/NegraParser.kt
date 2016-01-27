@@ -1,6 +1,5 @@
 package corpus.parsing
 
-import corpus.RelativeRange
 import corpus.ShufflingHandler
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -16,23 +15,17 @@ public class NegraParser : TreebankParser {
     override val ParserId: String = "NEGRA4"
 
     private class SaxHandler(private val handler: TreebankParserHandler,
-                             expectedItems: List<String>? = null) : DefaultHandler() {
+                             private val shuffleInfo: HashMap<String, Int>?) : DefaultHandler() {
 
-        private val expectedSentenceIds = if (expectedItems == null) null else HashSet<String>(expectedItems)
-
-        private var skipMode = false
         private var inSentence = false
 
         override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
             if (qName == "s") {
                 val id = attributes?.getValue("id")!!.trim()
-                if (expectedSentenceIds == null || expectedSentenceIds.contains(id)) {
-                    handler.beginSentence(id)
-                    skipMode = false
-                } else skipMode = true
+                handler.beginSentence(id, shuffleInfo?.get(id), shuffleInfo?.size)
                 inSentence = true
             }
-            if (!skipMode && inSentence && qName == "t") {
+            if (inSentence && qName == "t") {
                 val word = attributes?.getValue("word")!!
                 val lemma = attributes?.getValue("lemma")!!
                 val pos = attributes?.getValue("pos")
@@ -43,7 +36,7 @@ public class NegraParser : TreebankParser {
         }
 
         override fun endElement(uri: String?, localName: String?, qName: String?) {
-            if (!skipMode && qName == "s") {
+            if (qName == "s") {
                 handler.endSentence()
                 inSentence = false
             }
@@ -52,17 +45,17 @@ public class NegraParser : TreebankParser {
         }
     }
 
-    override fun parse(path: File, range: RelativeRange, handler: TreebankParserHandler) {
+    override fun parse(path: File, handler: TreebankParserHandler) {
 
         val shuffleFile = path.changeExtension("shuffled")
         if (!shuffleFile.exists()) createShuffleFile(shuffleFile, path)
 
-        val expectedItems = loadShuffleInfo(shuffleFile, range)
+        val shuffleInfo = loadShuffleInfo(shuffleFile)
 
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
         handler.beginTreebank(path)
-        parser.parse(path, SaxHandler(handler, expectedItems))
+        parser.parse(path, SaxHandler(handler, shuffleInfo))
         handler.endTreebank()
     }
 
@@ -70,17 +63,17 @@ public class NegraParser : TreebankParser {
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
         val handler = ShufflingHandler()
-        parser.parse(treebankPath, SaxHandler(handler))
+        parser.parse(treebankPath, SaxHandler(handler, null))
         handler.save(shuffleFile)
     }
 
-    private fun loadShuffleInfo(shuffleFile: File, range: RelativeRange): List<String> {
-        val result = ArrayList<String>()
+    private fun loadShuffleInfo(shuffleFile: File): HashMap<String, Int> {
+        val result = LinkedHashMap<String, Int>()
         BufferedReader(FileReader(shuffleFile)).use { reader ->
             val n = Integer.parseInt(reader.readLine())
             repeat(n, { i ->
                 val line = reader.readLine()?.trim()
-                if (line != null && range.accept(i, n)) result.add(line)
+                if (line != null) result.put(line, i)
             })
         }
         return result
