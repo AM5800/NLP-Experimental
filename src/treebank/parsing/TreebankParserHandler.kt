@@ -1,14 +1,14 @@
-package corpus.parsing
+package treebank.parsing
 
-import java.io.File
+import treebank.TreebankInfo
 
 
 open class TreebankParserHandler {
 
-    open fun beginTreebank(path: File) {
+    open fun beginTreebank(info: TreebankInfo) {
     }
 
-    open fun beginSentence(id: String, sentenceNumber: Int?, totalSentences: Int?) {
+    open fun beginSentence(id: String) {
     }
 
     open fun word(word: String, lemma: String, pos: String?) {

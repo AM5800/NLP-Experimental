@@ -1,4 +1,4 @@
-package corpus
+package treebank.parsing.shuffling
 
 public class RelativeRange(public val start: Int, public val end: Int) {
     init {

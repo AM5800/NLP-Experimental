@@ -1,7 +1,7 @@
-import corpus.RelativeRange
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
+import treebank.parsing.shuffling.RelativeRange
 
 class RelativeRangeTest {
     @Test

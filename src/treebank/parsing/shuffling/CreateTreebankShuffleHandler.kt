@@ -1,15 +1,15 @@
-package corpus
+package treebank.parsing.shuffling
 
-import corpus.parsing.TreebankParserHandler
+import treebank.parsing.TreebankParserHandler
 import util.shuffle
 import java.io.File
 import java.io.PrintWriter
 import java.util.*
 
-public class ShufflingHandler : TreebankParserHandler() {
+public class CreateTreebankShuffleHandler : TreebankParserHandler() {
     private val ids = ArrayList<String>()
 
-    override fun beginSentence(id: String, sentenceNumber: Int?, totalSentences: Int?) {
+    override fun beginSentence(id: String) {
         ids.add(id)
     }
 

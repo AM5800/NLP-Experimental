@@ -1,6 +1,6 @@
 package ml.sentenceBreaking
 
-import corpus.parsing.TreebankParserHandler
+import treebank.parsing.TreebankParserHandler
 import java.util.*
 import java.util.regex.Pattern
 
