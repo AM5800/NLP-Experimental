@@ -1,14 +1,14 @@
 package corpus
 
-public class RelativeRange(public val start: Double, public val end: Double) {
+public class RelativeRange(public val start: Int, public val end: Int) {
     init {
         if (start < 0) throw IllegalArgumentException("start can't be less than zero")
-        if (end > 1) throw IllegalArgumentException("end can't be more than one")
+        if (end > 100) throw IllegalArgumentException("end can't be more than hundred")
         if (start > end) throw IllegalArgumentException("start can't be more than end")
     }
 
     fun accept(i: Int, n: Int): Boolean {
-        val value = i.toDouble() / n
-        return value > start && value <= end
+        val value = i / n
+        return value >= start && value <= end
     }
 }

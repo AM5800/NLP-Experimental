@@ -17,8 +17,8 @@ fun main(args: Array<String>) {
     val breaker = HeuristicSentenceBreaker()
     val handler = SentenceBreakingHandler(breaker)
 
-    val learningRange = RelativeRange(0.0, 0.7)
-    val validationRange = RelativeRange(0.7, 1.0)
+    val learningRange = RelativeRange(0, 70)
+    val validationRange = RelativeRange(71, 100)
 
     val maker = SentenceBreakerTestDataMaker()
 
