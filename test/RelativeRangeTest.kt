@@ -14,7 +14,7 @@ class RelativeRangeTest {
 
     @Test
     fun test30_70() {
-        val range = 0.rangeTo(100000).toList()
+        val range = 0.rangeTo(99999).toList()
         val r30 = RelativeRange(0, 30)
         val r70 = RelativeRange(31, 100)
 
@@ -24,6 +24,7 @@ class RelativeRangeTest {
 
         assertNotEquals(r30, r70)
         assertEquals(range.size, r30Count + r70Count)
+        assertEquals(31000, r30Count)
 
     }
 }

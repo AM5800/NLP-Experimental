@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
     val handler = SentenceBreakingHandler(breaker)
 
     val learningRange = RelativeRange(0, 70)
-    val validationRange = RelativeRange(71, 100)
+    val validationRange = RelativeRange(learningRange.end + 1, 100)
 
     val maker = SentenceBreakerTestDataMaker()
 
@@ -34,6 +34,6 @@ fun main(args: Array<String>) {
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")
-    println(maker.getTestData().text)
+    println(maker.getTestData().text.length)
 }
 

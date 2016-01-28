@@ -31,7 +31,7 @@ public class NegraParser : TreebankParser {
             val lemma = attributes?.getValue("lemma")!!
             val pos = attributes?.getValue("pos")
 
-            if (word.last() == '.') {
+            if (!word.trimEnd('.').isEmpty() && word.last() == '.') {
                 handler.word(word.trimEnd('.'), lemma.trimEnd('.'), mapPos(pos))
                 handler.word(".", ".", ParsePartOfSpeech.Punctuation)
             } else handler.word(word, lemma, mapPos(pos))
