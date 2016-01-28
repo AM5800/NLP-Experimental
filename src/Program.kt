@@ -23,17 +23,16 @@ fun main(args: Array<String>) {
     val breaker = HeuristicSentenceBreaker()
     val handler = SentenceBreakingHandler(breaker)
 
-    val learningRange = RelativeRange(0, 70)
-    val validationRange = RelativeRange(learningRange.end + 1, 100)
+    val learningRange = RelativeRange(0, 80)
+    val validationRange = RelativeRange(learningRange.end, 100)
 
     val maker = SentenceBreakerTestDataMaker()
 
-    parsers.parse(treebanksRepo.getTreebanks(),
+    parsers.parse(treebanksRepo.getTreebanks().first { it.treebankPath.absolutePath.contains("TIGER") },
             seedRepo.newHandler(handler, learningRange),
             seedRepo.newHandler(maker, validationRange))
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")
-    println(maker.getTestData().text.length)
 }
 

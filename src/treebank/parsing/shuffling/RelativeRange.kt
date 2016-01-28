@@ -9,6 +9,6 @@ public class RelativeRange(public val start: Int, public val end: Int) {
 
     fun accept(i: Int, n: Int): Boolean {
         val value = 100 * i / n
-        return value >= start && value <= end
+        return value >= start && value < end
     }
 }
