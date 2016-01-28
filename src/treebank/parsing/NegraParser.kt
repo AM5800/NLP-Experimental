@@ -49,6 +49,7 @@ public class NegraParser : TreebankParser {
                 "VAFIN", "VAIMP", "VAINF", "VVPP", "VVFIN",
                 "VVIMP", "VVINF", "VVIZU", "VVPP" -> ParsePartOfSpeech.Verb
                 "ART" -> ParsePartOfSpeech.Determiner
+                "$.", "$," -> ParsePartOfSpeech.Punctuation
 
                 else -> null
             }

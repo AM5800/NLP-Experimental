@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
 
     val maker = SentenceBreakerTestDataMaker()
 
-    parsers.parse(treebanksRepo.getTreebanks().first { it.treebankPath.absolutePath.contains("TIGER") },
+    parsers.parse(treebanksRepo.getTreebanks(),
             seedRepo.newHandler(handler, learningRange),
             seedRepo.newHandler(maker, validationRange))
 

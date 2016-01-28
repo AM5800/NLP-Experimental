@@ -4,6 +4,7 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import treebank.TreebankInfo
 import java.io.File
+import java.util.*
 import javax.xml.parsers.SAXParserFactory
 
 
@@ -13,10 +14,15 @@ class TreexParser : TreebankParser {
     private class SaxHandler(private val handler: TreebankParserHandler,
                              private val treebankName: String) : DefaultHandler() {
 
+        private class TreexWord(val word: String, val lemma: String, val pos: ParsePartOfSpeech?, val ord: Int)
+
         private var lmLevel = 0
 
         private var form = ""
         private var lemma = ""
+        private var tag = ""
+
+        private val words = ArrayList<TreexWord>()
 
         private var currentDataTag = ""
 
@@ -25,12 +31,13 @@ class TreexParser : TreebankParser {
                 ++lmLevel
                 if (lmLevel == 1) {
                     val id = makeId(attributes)
+                    words.clear()
                     handler.beginSentence(id)
                 }
             }
 
             if (lmLevel >= 1) {
-                if (qName == "form" || qName == "lemma" || qName == "tag") currentDataTag = qName
+                if (qName == "form" || qName == "lemma" || qName == "tag" || qName == "ord") currentDataTag = qName
             }
         }
 
@@ -41,7 +48,11 @@ class TreexParser : TreebankParser {
         override fun endElement(uri: String?, localName: String?, qName: String?) {
             if (qName == "LM") {
                 --lmLevel
-                handler.endSentence()
+                if (lmLevel == 0) {
+                    words.sortBy { it.ord }
+                    words.forEach { handler.word(it.word, it.lemma, it.pos) }
+                    handler.endSentence()
+                }
             }
 
             currentDataTag = ""
@@ -53,8 +64,9 @@ class TreexParser : TreebankParser {
 
             if (currentDataTag == "form") form = value
             else if (currentDataTag == "lemma") lemma = value
-            else if (currentDataTag == "tag") {
-                handler.word(form, lemma, mapPos(value))
+            else if (currentDataTag == "tag") tag = value
+            else if (currentDataTag == "ord" && value != "0") {
+                words.add(TreexWord(form, lemma, mapPos(tag), Integer.parseInt(value)))
             }
         }
 
