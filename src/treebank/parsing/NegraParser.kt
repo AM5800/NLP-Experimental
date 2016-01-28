@@ -20,13 +20,38 @@ public class NegraParser : TreebankParser {
                 inSentence = true
             }
             if (inSentence && qName == "t") {
-                val word = attributes?.getValue("word")!!
-                val lemma = attributes?.getValue("lemma")!!
-                val pos = attributes?.getValue("pos")
-                handler.word(word, lemma, pos)
+                processWord(attributes)
             }
 
             super.startElement(uri, localName, qName, attributes)
+        }
+
+        private fun processWord(attributes: Attributes?) {
+            val word = attributes?.getValue("word")!!
+            val lemma = attributes?.getValue("lemma")!!
+            val pos = attributes?.getValue("pos")
+
+            if (word.last() == '.') {
+                handler.word(word.trimEnd('.'), lemma.trimEnd('.'), mapPos(pos))
+                handler.word(".", ".", ParsePartOfSpeech.Punctuation)
+            } else handler.word(word, lemma, mapPos(pos))
+        }
+
+        private fun mapPos(pos: String?): ParsePartOfSpeech? {
+            return when (pos) {
+            // TODO more mapping!
+                "ADJA", "ADJV" -> ParsePartOfSpeech.Adjective
+                "ADV" -> ParsePartOfSpeech.Adverb
+                "CARD" -> ParsePartOfSpeech.Cardinal
+                "FM" -> ParsePartOfSpeech.ForeignLanguageMaterial
+                "NE" -> ParsePartOfSpeech.ProperName
+                "NN" -> ParsePartOfSpeech.Noun
+                "VAFIN", "VAIMP", "VAINF", "VVPP", "VVFIN",
+                "VVIMP", "VVINF", "VVIZU", "VVPP" -> ParsePartOfSpeech.Verb
+                "ART" -> ParsePartOfSpeech.Determiner
+
+                else -> null
+            }
         }
 
         override fun endElement(uri: String?, localName: String?, qName: String?) {
@@ -40,6 +65,8 @@ public class NegraParser : TreebankParser {
     }
 
     override fun parse(info: TreebankInfo, handler: TreebankParserHandler) {
+        assert(info.formatId == ParserId)
+
         val factory = SAXParserFactory.newInstance()
         val parser = factory.newSAXParser()
         handler.beginTreebank(info)

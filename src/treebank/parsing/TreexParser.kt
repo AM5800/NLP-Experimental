@@ -54,7 +54,20 @@ class TreexParser : TreebankParser {
             if (currentDataTag == "form") form = value
             else if (currentDataTag == "lemma") lemma = value
             else if (currentDataTag == "tag") {
-                handler.word(form, lemma, value)
+                handler.word(form, lemma, mapPos(value))
+            }
+        }
+
+        private fun mapPos(pos: String): ParsePartOfSpeech? {
+            return when (pos) {
+                "ADV" -> ParsePartOfSpeech.Adverb
+                "ADJ" -> ParsePartOfSpeech.Adjective
+                "PUNCT" -> ParsePartOfSpeech.Punctuation
+                "DET" -> ParsePartOfSpeech.Determiner
+                "NOUN" -> ParsePartOfSpeech.Noun
+                "PRON" -> ParsePartOfSpeech.Pronoun
+                "VERB" -> ParsePartOfSpeech.Verb
+                else -> null
             }
         }
     }

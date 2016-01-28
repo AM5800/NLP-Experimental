@@ -1,6 +1,6 @@
 package ml.sentenceBreaking
 
-import treebank.TreebankInfo
+import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 
 public class SentenceBreakerTestData(public val text: String, public val sentenceBreaks: List<Int>)
@@ -10,12 +10,8 @@ public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     private val builder = StringBuilder()
     private val sentenceBreaks = arrayListOf<Int>()
 
-    override fun beginTreebank(info: TreebankInfo) {
-        builder.setLength(0)
-    }
-
-    override fun word(word: String, lemma: String, pos: String?) {
-        if (builder.length != 0 && pos?.startsWith('$') == false) builder.append(' ')
+    override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
+        if (builder.length != 0 && pos != ParsePartOfSpeech.Punctuation) builder.append(' ')
         builder.append(word)
     }
 

@@ -11,7 +11,7 @@ open class TreebankParserHandler {
     open fun beginSentence(id: String) {
     }
 
-    open fun word(word: String, lemma: String, pos: String?) {
+    open fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
     }
 
     open fun endSentence() {

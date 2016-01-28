@@ -16,5 +16,12 @@ class TreebankParsersSet {
         val parser = registeredParsers.first { it.ParserId.equals(info.formatId, true) }
         parser.parse(info, MultiHandler(handlers))
     }
+
+    fun parse(infos: Iterable<TreebankInfo>, vararg handlers: TreebankParserHandler) {
+        for (info in infos) {
+            val parser = registeredParsers.first { it.ParserId.equals(info.formatId, true) }
+            parser.parse(info, MultiHandler(handlers))
+        }
+    }
 }
 

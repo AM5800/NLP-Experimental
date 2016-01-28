@@ -1,6 +1,7 @@
 package treebank.parsing.shuffling
 
 import treebank.TreebankInfo
+import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
 
@@ -25,7 +26,7 @@ class ReadTreebankShuffleHandler(private val repository: TreebankShuffleReposito
         }
     }
 
-    override fun word(word: String, lemma: String, pos: String?) {
+    override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
         if (!skip) {
             original.word(word, lemma, pos)
         }

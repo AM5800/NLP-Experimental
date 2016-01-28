@@ -28,12 +28,12 @@ fun main(args: Array<String>) {
 
     val maker = SentenceBreakerTestDataMaker()
 
-    val hamledt = treebanksRepo.getTreebanks().first { it.infoFile.absolutePath.contains("hamledt3") }
-    parsers.parse(hamledt,
+    parsers.parse(treebanksRepo.getTreebanks(),
             seedRepo.newHandler(handler, learningRange),
             seedRepo.newHandler(maker, validationRange))
 
     val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
     println("Sentence breaking performance: $performance")
+    println(maker.getTestData().text)
 }
 

@@ -1,5 +1,6 @@
 package ml.sentenceBreaking
 
+import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
 import java.util.regex.Pattern
@@ -8,8 +9,8 @@ class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : T
     public val nonBreakers = HashSet<String>()
     private val romanNumberRegex = Pattern.compile("[IVXLCDM]+\\.")
 
-    override fun word(word: String, lemma: String, pos: String?) {
-        if (pos == "CARD" || pos?.startsWith('$') == true) return
+    override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
+        if (pos == ParsePartOfSpeech.Cardinal || pos == ParsePartOfSpeech.Punctuation) return
 
         if (check(word)) {
             nonBreakers.add(word.toLowerCase())
