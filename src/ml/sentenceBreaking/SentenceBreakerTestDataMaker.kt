@@ -3,10 +3,10 @@ package ml.sentenceBreaking
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 
-public class SentenceBreakerTestData(public val text: String, public val sentenceBreaks: List<Int>)
+class SentenceBreakerTestData(val text: String, val sentenceBreaks: List<Int>)
 
 
-public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
+class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     private val builder = StringBuilder()
     private val sentenceBreaks = arrayListOf<Int>()
 
@@ -24,7 +24,7 @@ public class SentenceBreakerTestDataMaker : TreebankParserHandler() {
         super.endTreebank()
     }
 
-    public fun getTestData(): SentenceBreakerTestData {
+    fun getTestData(): SentenceBreakerTestData {
         return SentenceBreakerTestData(builder.toString(), sentenceBreaks)
     }
 }

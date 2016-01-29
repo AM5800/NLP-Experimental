@@ -6,7 +6,7 @@ import treebank.TreebankInfo
 import javax.xml.parsers.SAXParserFactory
 
 
-public class NegraParser : TreebankParser {
+class NegraParser : TreebankParser {
     override val ParserId: String = "NEGRA4"
 
     private class SaxHandler(private val handler: TreebankParserHandler) : DefaultHandler() {

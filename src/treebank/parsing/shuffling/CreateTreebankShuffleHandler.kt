@@ -6,7 +6,7 @@ import java.io.File
 import java.io.PrintWriter
 import java.util.*
 
-public class CreateTreebankShuffleHandler : TreebankParserHandler() {
+class CreateTreebankShuffleHandler : TreebankParserHandler() {
     private val ids = ArrayList<String>()
 
     override fun beginSentence(id: String) {

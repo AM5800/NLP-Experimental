@@ -6,7 +6,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : TreebankParserHandler() {
-    public val nonBreakers = HashSet<String>()
+    val nonBreakers = HashSet<String>()
     private val romanNumberRegex = Pattern.compile("[IVXLCDM]+\\.")
 
     override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {

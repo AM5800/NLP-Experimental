@@ -2,9 +2,9 @@ package ml.sentenceBreaking
 
 import java.util.*
 
-public data class SentenceBounds(public val start: Int, public val end: Int)
+data class SentenceBounds(val start: Int, val end: Int)
 
-public class HeuristicSentenceBreaker {
+class HeuristicSentenceBreaker {
 
     private val nonBreakers = HashSet<String>()
 
@@ -12,7 +12,7 @@ public class HeuristicSentenceBreaker {
         this.nonBreakers.addAll(nonBreakers.map { it.toLowerCase().trimEnd('.') })
     }
 
-    public fun breakText(text: String): Iterable<SentenceBounds> {
+    fun breakText(text: String): Iterable<SentenceBounds> {
         var sentenceStart = 0
 
         val result = arrayListOf<SentenceBounds>()

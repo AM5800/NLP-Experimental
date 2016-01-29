@@ -5,10 +5,10 @@ import java.util.regex.Pattern
 
 class SentenceBreakerUtils {
     companion object {
-        public val RomanNumberRegex = Pattern.compile("[IVXLCDM]+")
-        public val NumberRegex = Pattern.compile("[0-9\\.,]+")
+        val RomanNumberRegex = Pattern.compile("[IVXLCDM]+")
+        val NumberRegex = Pattern.compile("[0-9\\.,]+")
 
-        public fun isSentenceEndChar(ch: Char): Boolean {
+        fun isSentenceEndChar(ch: Char): Boolean {
             return ch == '.' || ch == '?' || ch == '!'
         }
 

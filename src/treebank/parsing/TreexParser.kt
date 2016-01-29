@@ -86,7 +86,7 @@ class TreexParser : TreebankParser {
                 "PROPN" -> ParsePartOfSpeech.ProperName
                 "AUX" -> ParsePartOfSpeech.Verb
                 "X" -> null
-                else -> throw Exception("Unkown pos tag: " + pos)
+                else -> throw Exception("Unknown pos tag: " + pos)
             }
         }
     }
