@@ -42,7 +42,7 @@ public class NegraParser : TreebankParser {
             // TODO more mapping!
                 "ADJA", "ADJV" -> ParsePartOfSpeech.Adjective
                 "ADV" -> ParsePartOfSpeech.Adverb
-                "CARD" -> ParsePartOfSpeech.Cardinal
+                "CARD" -> ParsePartOfSpeech.Number
                 "FM" -> ParsePartOfSpeech.ForeignLanguageMaterial
                 "NE" -> ParsePartOfSpeech.ProperName
                 "NN" -> ParsePartOfSpeech.Noun

@@ -10,7 +10,7 @@ class SentenceBreakingHandler(private val breaker: HeuristicSentenceBreaker) : T
     private val romanNumberRegex = Pattern.compile("[IVXLCDM]+\\.")
 
     override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
-        if (pos == ParsePartOfSpeech.Cardinal || pos == ParsePartOfSpeech.Punctuation) return
+        if (pos == ParsePartOfSpeech.Number || pos == ParsePartOfSpeech.Punctuation) return
 
         if (check(word)) {
             nonBreakers.add(word.toLowerCase())

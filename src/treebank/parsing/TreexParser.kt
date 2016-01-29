@@ -79,7 +79,14 @@ class TreexParser : TreebankParser {
                 "NOUN" -> ParsePartOfSpeech.Noun
                 "PRON" -> ParsePartOfSpeech.Pronoun
                 "VERB" -> ParsePartOfSpeech.Verb
-                else -> null
+                "CONJ", "SCONJ" -> ParsePartOfSpeech.Conjunction
+                "PART" -> ParsePartOfSpeech.Particle
+                "NUM" -> ParsePartOfSpeech.Number
+                "ADP" -> ParsePartOfSpeech.Preposition
+                "PROPN" -> ParsePartOfSpeech.ProperName
+                "AUX" -> ParsePartOfSpeech.Verb
+                "X" -> null
+                else -> throw Exception("Unkown pos tag: " + pos)
             }
         }
     }

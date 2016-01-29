@@ -2,6 +2,7 @@ package treebank.parsing
 
 
 enum class ParsePartOfSpeech {
+    Particle,
     Pronoun,
     Determiner,
     Noun,
@@ -9,7 +10,7 @@ enum class ParsePartOfSpeech {
     Adjective,
     Adverb,
     Preposition,
-    Cardinal,
+    Number,
     Conjunction,
     ProperName,
     Verb,
