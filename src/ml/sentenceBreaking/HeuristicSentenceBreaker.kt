@@ -26,6 +26,10 @@ class HeuristicSentenceBreaker {
             }
         }
 
+        if (text.length - sentenceStart > 3) {
+            result.add(SentenceBounds(sentenceStart, text.length - 1))
+        }
+
         return result
     }
 
