@@ -31,12 +31,34 @@ class HeuristicSentenceBreaker {
 
     private fun isSentence(text: String, sentenceStart: Int, probableSentenceEnd: Int): Boolean {
         if (probableSentenceEnd == text.length - 1 && probableSentenceEnd - sentenceStart > 0) return true
+
+        // example: abc.de.fg - sentence can't break here
+        if (!text[probableSentenceEnd + 1].isWhitespace()) {
+            return false
+        }
+
+        val currentChar = text[probableSentenceEnd]
+
+        // Most problematic char
+        if (currentChar != '.') {
+            return true
+        }
+
         val prevWord = findPrevWord(text, sentenceStart, probableSentenceEnd)
         if (prevWord == null) return false
 
+        // example: mr. Dursley
         if (nonBreakers.contains(prevWord.toLowerCase())) return false
 
-        if (SentenceBreakerUtils.isNumber(prevWord)) return false
+        // TODO how to break in "... am 6. Juli" vs "... in 2004."?
+        // example: 1.5
+        //if (SentenceBreakerUtils.isNumber(prevWord)) return false
+
+        // example: www.leningrad.spb.ru
+        if (SentenceBreakerUtils.isWebLink(prevWord)) return false
+
+        // example A.V.G.
+        if (SentenceBreakerUtils.isAbbreviation(prevWord + ".")) return false
 
         return true
     }
