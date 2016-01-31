@@ -15,4 +15,7 @@ enum class ParsePartOfSpeech {
     ProperName,
     Verb,
     Punctuation,
+    QuotationSymbol,
+    QuotationStart,
+    QuotationEnd
 }

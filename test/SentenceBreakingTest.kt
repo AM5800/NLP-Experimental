@@ -17,6 +17,9 @@ class SentenceBreakingTest {
     fun testDot() = doTest("Das ist ein Tisch.")
 
     @Test
+    fun testEllipsis() = doTest("Das ist ein Tisch...")
+
+    @Test
     fun testExclamation() = doTest("Das ist ein Tisch!")
 
     @Test
@@ -30,4 +33,7 @@ class SentenceBreakingTest {
 
     @Test
     fun testDecimal3() = doTest("Dieser Stein wiegt .5 kg.")
+
+    @Test
+    fun testOneCharWord() = doTest("blah a. blah.")
 }

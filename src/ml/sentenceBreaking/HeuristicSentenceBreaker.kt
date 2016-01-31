@@ -51,6 +51,9 @@ class HeuristicSentenceBreaker {
         val prevWord = findPrevWord(text, sentenceStart, probableSentenceEnd)
         if (prevWord == null) return false
 
+        // example: m.
+        //if (prevWord.length == 1 && prevWord.first().isLetter()) return false
+
         // example: mr. Dursley
         if (nonBreakers.contains(prevWord.toLowerCase())) return false
 
