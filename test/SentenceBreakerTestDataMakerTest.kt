@@ -71,6 +71,18 @@ class SentenceBreakerTestDataMakerTest {
         Assert.assertEquals("Der, Tisch.", maker.getTestData().text)
     }
 
+    @Test
+    fun testTigerQuotes() {
+        val maker = SentenceBreakerTestDataMaker()
+        maker.word("Der", "", ParsePartOfSpeech.Determiner)
+        maker.word("''", "", ParsePartOfSpeech.QuotationEnd)
+        maker.endSentence()
+        maker.word("``", "", ParsePartOfSpeech.QuotationStart)
+        maker.word("Tisch", "", ParsePartOfSpeech.Noun)
+        maker.endSentence()
+        Assert.assertEquals("Der''. ``Tisch.", maker.getTestData().text)
+    }
+
     private fun testQuotes(startSymbols: String,
                            endSymbols: String = startSymbols,
                            posStart: ParsePartOfSpeech = ParsePartOfSpeech.QuotationSymbol,

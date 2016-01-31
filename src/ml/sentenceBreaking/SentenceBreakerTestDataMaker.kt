@@ -20,13 +20,11 @@ class SentenceBreakerTestDataMaker : TreebankParserHandler() {
         builder.length != 0
 
         if (builder.length == 0) needSpace = false
-        // example: A, B
         else if (pos == ParsePartOfSpeech.Punctuation) needSpace = false
         else if (isQuot(previousPos)) needSpace = false
         else if (pos == ParsePartOfSpeech.QuotationStart) needSpace = true
-        else if (pos == ParsePartOfSpeech.QuotationEnd) {
-            needSpace = false
-        } else if (pos == ParsePartOfSpeech.QuotationSymbol) {
+        else if (pos == ParsePartOfSpeech.QuotationEnd) needSpace = false
+        else if (pos == ParsePartOfSpeech.QuotationSymbol) {
             // Closing quote
             if (!quotesStack.empty() && quotesStack.last() == word) {
                 needSpace = false
@@ -54,7 +52,11 @@ class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     }
 
     override fun endSentence() {
-        if (!SentenceBreakerUtils.isSentenceEndChar(builder.last())) builder.append('.')
+        if (!SentenceBreakerUtils.isSentenceEndChar(builder.last())) {
+            builder.append('.')
+            previousWord = "."
+            previousPos = ParsePartOfSpeech.Punctuation
+        }
         sentenceBreaks.add(builder.length - 1)
     }
 

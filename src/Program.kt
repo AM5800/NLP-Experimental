@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
             seedRepo.newHandler(handler, learningRange),
             seedRepo.newHandler(maker, validationRange))
 
-    val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData())
+    val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData(), true)
     println("Sentence breaking performance: $performance")
 }
 

@@ -32,12 +32,15 @@ class NegraParser : TreebankParser {
             val pos = attributes?.getValue("pos")
 
             if (!word.trimEnd('.').isEmpty() && word.last() == '.') {
-                handler.word(word.trimEnd('.'), lemma.trimEnd('.'), mapPos(pos))
+                handler.word(word.trimEnd('.'), lemma.trimEnd('.'), getPos(pos, word))
                 handler.word(".", ".", ParsePartOfSpeech.Punctuation)
-            } else handler.word(word, lemma, mapPos(pos))
+            } else handler.word(word, lemma, getPos(pos, word))
         }
 
-        private fun mapPos(pos: String?): ParsePartOfSpeech? {
+        private fun getPos(pos: String?, word: String): ParsePartOfSpeech? {
+            if (word == "``") return ParsePartOfSpeech.QuotationStart
+            else if (word == "''") return ParsePartOfSpeech.QuotationEnd
+
             return when (pos) {
             // TODO more mapping!
                 "ADJA", "ADJV" -> ParsePartOfSpeech.Adjective
@@ -49,7 +52,7 @@ class NegraParser : TreebankParser {
                 "VAFIN", "VAIMP", "VAINF", "VVPP", "VVFIN",
                 "VVIMP", "VVINF", "VVIZU", "VVPP" -> ParsePartOfSpeech.Verb
                 "ART" -> ParsePartOfSpeech.Determiner
-                "$.", "$," -> ParsePartOfSpeech.Punctuation
+                "$.", "$,", "$(" -> ParsePartOfSpeech.Punctuation
 
                 else -> null
             }
