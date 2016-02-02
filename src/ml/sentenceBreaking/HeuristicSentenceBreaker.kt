@@ -4,7 +4,7 @@ import java.util.*
 
 data class SentenceBounds(val start: Int, val end: Int)
 
-class HeuristicSentenceBreaker {
+class HeuristicSentenceBreaker : SentenceBreaker {
 
     private val nonBreakers = HashSet<String>()
 
@@ -12,7 +12,7 @@ class HeuristicSentenceBreaker {
         this.nonBreakers.addAll(nonBreakers.map { it.toLowerCase().trimEnd('.') })
     }
 
-    fun breakText(text: String): Iterable<SentenceBounds> {
+    override fun breakText(text: String): Iterable<SentenceBounds> {
         var sentenceStart = 0
 
         val result = arrayListOf<SentenceBounds>()
@@ -32,6 +32,7 @@ class HeuristicSentenceBreaker {
 
         return result
     }
+
 
     private fun isSentence(text: String, sentenceStart: Int, probableSentenceEnd: Int): Boolean {
         if (probableSentenceEnd == text.length - 1 && probableSentenceEnd - sentenceStart > 0) return true

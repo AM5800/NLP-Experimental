@@ -2,7 +2,7 @@ package ml.sentenceBreaking
 
 
 class SentenceBreakerPerformanceTester {
-    fun getPerformance(breaker: HeuristicSentenceBreaker,
+    fun getPerformance(breaker: SentenceBreaker,
                        data: SentenceBreakerTestData,
                        outputErrors: Boolean = false): Double {
         val sentences = breaker.breakText(data.text)

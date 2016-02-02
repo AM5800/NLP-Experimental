@@ -1,7 +1,4 @@
-import ml.sentenceBreaking.HeuristicSentenceBreaker
-import ml.sentenceBreaking.SentenceBreakerPerformanceTester
-import ml.sentenceBreaking.SentenceBreakerTestDataMaker
-import ml.sentenceBreaking.SentenceBreakingHandler
+import ml.sentenceBreaking.*
 import treebank.TreebankRepository
 import treebank.parsing.NegraParser
 import treebank.parsing.TreebankParsersSet
@@ -20,8 +17,11 @@ fun main(args: Array<String>) {
 
     seedRepo.shuffleIfNeeded()
 
-    val breaker = HeuristicSentenceBreaker()
-    val handler = SentenceBreakingHandler(breaker)
+    val heuristicBreaker = HeuristicSentenceBreaker()
+    val logLinearBreaker = LogLinearSentenceBreaker(LogLinearSentenceBreakerFeatureSet())
+
+    // TODO educate logLinearBreaker
+    val handler = SentenceBreakingHandler(heuristicBreaker)
 
     val learningRange = RelativeRange(0, 80)
     val validationRange = RelativeRange(learningRange.end, 100)
@@ -32,7 +32,10 @@ fun main(args: Array<String>) {
             seedRepo.newHandler(handler, learningRange),
             seedRepo.newHandler(maker, validationRange))
 
-    val performance = SentenceBreakerPerformanceTester().getPerformance(breaker, maker.getTestData(), true)
-    println("Sentence breaking performance: $performance")
+    val tester = SentenceBreakerPerformanceTester()
+    val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
+    val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData())
+    println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
+    println("LogLinear sentence breaking performance: $logLinearBreakerPerformance")
 }
 
