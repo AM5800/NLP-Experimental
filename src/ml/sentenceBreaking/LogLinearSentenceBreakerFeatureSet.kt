@@ -3,6 +3,11 @@ package ml.sentenceBreaking
 import java.util.*
 
 class LogLinearSentenceBreakerFeatureSet {
+    val history = -3
+    val future = 1
+    val requiredStackSize = future - history
+    val currentWordOffset = -history - 1
+
     private val _features = ArrayList<(List<String>, Int, SentenceBreakerTag) -> Boolean>()
     val features: List<(List<String>, Int, SentenceBreakerTag) -> Boolean>
         get() = _features

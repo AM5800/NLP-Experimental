@@ -15,4 +15,13 @@ class SplitWordsTest {
         Assert.assertEquals(words[9], "''")
         Assert.assertEquals(words[10], "...")
     }
+
+    @Test
+    fun testLeadingPeriod() {
+        val text = "Das ist eine .NET Anwendung"
+        val words = splitWords(text).map { text.substring(it.start, it.end) }
+        Assert.assertEquals(6, words.size)
+        Assert.assertEquals(words[3], ".")
+        Assert.assertEquals(words[4], "NET")
+    }
 }
