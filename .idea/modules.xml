@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/NLP-Experimental.iml" filepath="$PROJECT_DIR$/NLP-Experimental.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NLP-Experimental.iml" filepath="$PROJECT_DIR$/.idea/modules/NLP-Experimental.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NLP_Experimental_main.iml" filepath="$PROJECT_DIR$/.idea/modules/NLP_Experimental_main.iml" group="NLP-Experimental" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NLP_Experimental_test.iml" filepath="$PROJECT_DIR$/.idea/modules/NLP_Experimental_test.iml" group="NLP-Experimental" />
     </modules>
   </component>
 </project>
