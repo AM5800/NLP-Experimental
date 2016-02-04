@@ -2,8 +2,6 @@ package ml.sentenceBreaking
 
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function
-import ml.sentenceBreaking.LogLinearSentenceBreakerFeatureSet
-import ml.sentenceBreaking.SentenceBreakerTag
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
