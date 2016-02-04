@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
-  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData(), true)
+  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData())
   println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
   println("LogLinear sentence breaking performance: $logLinearBreakerPerformance")
 }

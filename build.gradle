@@ -1,27 +1,26 @@
 buildscript {
+  ext.kotlin_version = '1.0.0-rc-1036'
   repositories {
     mavenCentral()
-    maven {
-      url 'https://dl.bintray.com/kotlin/kotlin-eap'
-    }
   }
   dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.0-rc-1017"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
 
 repositories {
   mavenCentral()
-  maven {
-    url 'https://dl.bintray.com/kotlin/kotlin-eap'
-  }
 }
 
 apply plugin: "kotlin"
 apply plugin: "java"
-apply plugin: 'idea'
+apply plugin: "idea"
 
 dependencies {
-  compile group: 'com.github.vinhkhuc', name: 'lbfgs4j', version: '0.2'
+  compile "com.github.vinhkhuc:lbfgs4j:0.2"
   testCompile "junit:junit:4.12"
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+sourceSets {
+  main.java.srcDirs += 'src/main/kotlin'
 }

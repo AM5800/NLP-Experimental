@@ -7,7 +7,7 @@ class TreebankRepository(basePath: File) {
   private val treebanks = parseInfos(basePath)
 
   private fun parseInfos(basePath: File): List<TreebankInfo> {
-    val fileList = basePath.listFiles { f -> f.extension.equals("treebank", true) }
+    val fileList = basePath.listFiles { f -> f.extension.equals("treebank", true) } ?: return emptyList()
 
     return fileList.map { file -> tryParseTreebankInfo(file.absoluteFile) }.filterNotNull()
   }

@@ -1,4 +1,4 @@
-package sentenceBreaking
+package ml.sentenceBreaking
 
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function
