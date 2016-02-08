@@ -6,7 +6,22 @@ import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
 
-class TrainingTableEntry(val valueAtRegular: Boolean, val tag: SentenceBreakerTag)
+fun Boolean.toInt(): Int {
+  if (this == true) return 1
+  return 0
+}
+
+class TrainingTableEntry(val valueAtRegular: Boolean, val tag: SentenceBreakerTag) {
+  val answer = if (tag == SentenceBreakerTag.Regular) valueAtRegular else !valueAtRegular
+
+  fun by(y: Int): Boolean {
+    return values[y]
+  }
+
+  val valueAtSentenceBreak = !valueAtRegular
+
+  val values = listOf(valueAtRegular, valueAtSentenceBreak)
+}
 
 class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet) : TreebankParserHandler() {
   private var currentWord: String? = null
@@ -18,6 +33,7 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
     if (currentWord != null) {
       queue.addLast(currentWord)
     }
+    currentWord = word
     process(SentenceBreakerTag.Regular)
   }
 
@@ -42,44 +58,63 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
   private fun getValueAtRegular(it: Boolean, tag: SentenceBreakerTag) = if (tag == SentenceBreakerTag.Regular) it else !it
 
   fun computeParameters(lambda: Double): DoubleArray {
-    val minimzer = LbfgsMinimizer()
-    return minimzer.minimize(CostFunction(lambda, trainingData))
+    val minimizer = LbfgsMinimizer()
+    return minimizer.minimize(CostFunction(lambda, trainingData))
   }
 
-  class CostFunction(val lambda: Double, private val trainingData: ArrayList<List<TrainingTableEntry>>) : Function {
-
-    private val foundValues = trainingData.map {
-      it.map {
-        if (it.tag == SentenceBreakerTag.Regular) it.valueAtRegular else !it.valueAtRegular
-      }.toBooleanArray()
-    }.toTypedArray()
-
-    private val allValues: Array<Array<BooleanArray>> = trainingData.map {
-      it.map {
-        booleanArrayOf(it.valueAtRegular, !it.valueAtRegular)
-      }.toTypedArray()
-    }.toTypedArray()
-
+  class CostFunction(val lambda: Double, private val trainingData: List<List<TrainingTableEntry>>) : Function {
     private val n = trainingData.size
     private val m = trainingData.first().size
+    private val Y = trainingData.first().first().values.size
 
     override fun getDimension(): Int {
       return m
     }
 
     override fun gradientAt(x: DoubleArray): DoubleArray {
-      throw UnsupportedOperationException()
+      val result = DoubleArray(m)
+
+      for (k in 0..m-1) {
+        for (i in 0..n-1) {
+          val valueAtK = trainingData[i][k].answer.toInt()
+          result[k] += valueAtK
+
+          for (y in 0..Y-1) {
+            val valueAtKGivenY = trainingData[i][k].by(y).toInt()
+            val p = computeP(y, i, x)
+
+            result[k] -= valueAtKGivenY * p
+          }
+        }
+
+        val regularizationTerm = x[k] * -lambda
+        result[k] -= regularizationTerm
+      }
+
+      return result
+    }
+
+    private fun computeP(y: Int, i: Int, vs: DoubleArray): Double {
+      val entries = trainingData[i]
+      val nom = Math.exp(dot(vs, entries.map { it.by(y) }.toBooleanArray()))
+
+      var denom = 0.0
+      for (yy in 0..Y-1) {
+        denom += Math.exp(dot(vs, entries.map { it.by(yy) }.toBooleanArray()))
+      }
+
+      return nom / denom
     }
 
     override fun valueAt(x: DoubleArray): Double {
-      val linearTerm = foundValues.map { dot(x, it) }.sum()
+      val linearTerm = trainingData.map {dot(x, it.map {it.answer}.toBooleanArray() )}.sum()
 
       var logTerm = 0.0
-      for (i in 0..n) {
+      for (i in 0..n-1) {
 
         var expTerm = 0.0
-        for (y in 0..allValues.first().first().size) {
-          val fValues = allValues[i].map { it[y] }.toBooleanArray()
+        for (y in 0..Y-1) {
+          val fValues = trainingData[i].map {it.by(y)}.toBooleanArray()
           val dotProduct = dot(x, fValues)
           expTerm += Math.exp(dotProduct)
         }
@@ -92,11 +127,6 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
       return linearTerm + logTerm - regularizationTerm
     }
 
-    private fun dot(x: DoubleArray, y: BooleanArray): Double {
-      if (x.size != y.size) throw Exception("x and y size mismatch")
-
-      return x.mapIndexed { i, d -> if (y[i]) d else 0.0 }.sum()
-    }
   }
 }
 

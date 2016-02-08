@@ -2,7 +2,7 @@ package ml.sentenceBreaking
 
 import java.util.*
 
-class LogLinearSentenceBreaker(val featureSet: LogLinearSentenceBreakerFeatureSet) : SentenceBreaker {
+class LogLinearSentenceBreaker(val featureSet: LogLinearSentenceBreakerFeatureSet, private val vs: DoubleArray) : SentenceBreaker {
   override fun breakText(text: String): Iterable<SentenceBounds> {
     val words = splitWords(text)
 
@@ -36,9 +36,8 @@ class LogLinearSentenceBreaker(val featureSet: LogLinearSentenceBreakerFeatureSe
   private fun getMostProbableTag(list: List<Located<String>>, index: Int): SentenceBreakerTag {
     val words = list.map { it.value }
 
-    // TODO V-vector
-    val regulars = featureSet.features.map { it(words, index, SentenceBreakerTag.Regular) }.sumBy { if (it) 1 else 0 }
-    val breaks = featureSet.features.map { it(words, index, SentenceBreakerTag.SentenceBreak) }.sumBy { if (it) 1 else 0 }
+    val regulars = dot(vs, featureSet.features.map { it(words, index, SentenceBreakerTag.Regular) }.toBooleanArray())
+    val breaks = dot(vs, featureSet.features.map { it(words, index, SentenceBreakerTag.SentenceBreak) }.toBooleanArray())
 
     if (regulars >= breaks) return SentenceBreakerTag.Regular
     return SentenceBreakerTag.SentenceBreak
