@@ -10,55 +10,64 @@ fun Boolean.toInt(): Int {
   return 0
 }
 
-class TrainingTableEntry(val valueAtRegular: Boolean, val tag: SentenceBreakerTag) {
-  val answer = if (tag == SentenceBreakerTag.Regular) valueAtRegular else !valueAtRegular
+class TrainingTableEntry(val valueAt0: Boolean, val valueAt1: Boolean, val tag: SentenceBreakerTag) {
 
   fun by(y: Int): Boolean {
     return values[y]
   }
 
-  val valueAtSentenceBreak = !valueAtRegular
+  val values = listOf(valueAt0, valueAt1)
 
-  val values = listOf(valueAtRegular, valueAtSentenceBreak)
+  val valueAtSentenceBreak = values[SentenceBreakerTag.values().indexOf(SentenceBreakerTag.SentenceBreak)]
+  val valueAtRegular = values[SentenceBreakerTag.values().indexOf(SentenceBreakerTag.Regular)]
+
+  val answer = if (tag == SentenceBreakerTag.Regular) valueAtRegular else valueAtSentenceBreak
 }
 
 class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet) : TreebankParserHandler() {
-  private var currentWord: String? = null
-
-  private val queue = LinkedList<String>()
+  private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
   private val trainingData = ArrayList<List<TrainingTableEntry>>()
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
-    if (currentWord != null) {
-      queue.addLast(currentWord)
-    }
-    currentWord = word
-    process(SentenceBreakerTag.Regular)
+    queue.addLast(Pair(word, SentenceBreakerTag.Regular))
+    process()
   }
 
   override fun endSentence() {
-    if (currentWord != null) queue.push(currentWord)
-    currentWord = null
-    process(SentenceBreakerTag.SentenceBreak)
+    val last = queue.removeLast()
+    queue.addLast(Pair(last.first, SentenceBreakerTag.SentenceBreak))
   }
 
-  private fun process(tag: SentenceBreakerTag) {
+  private fun process() {
     if (queue.size < featureSet.requiredStackSize) return
 
     while (queue.size > featureSet.requiredStackSize) queue.removeFirst()
 
-    val entries = featureSet.features
-            .map { it(queue, featureSet.currentWordOffset, tag) }
-            .map { TrainingTableEntry(getValueAtRegular(it, tag), tag) }
+    val words = queue.map { it.first }
+    val offset = featureSet.currentWordOffset
+    val correctTag = queue[offset].second
 
-    trainingData.add(entries)
+    val result = featureSet.features.map { feature ->
+      val featureResults = SentenceBreakerTag.values().map { tag -> feature(words, offset, tag) }
+      TrainingTableEntry(featureResults[0], featureResults[1], correctTag)
+    }
+
+    trainingData.add(result)
+
+    queue.removeFirst()
   }
 
-  private fun getValueAtRegular(it: Boolean, tag: SentenceBreakerTag) = if (tag == SentenceBreakerTag.Regular) it else !it
-
   fun computeParameters(lambda: Double): DoubleArray {
+    println("Computing parameters")
+    val t0 = System.nanoTime()
     val minimizer = LbfgsMinimizer()
-    return minimizer.minimize(LogLinearCostFunction(lambda, trainingData))
+    val costFunction = LogLinearCostFunction(lambda, trainingData.take(15))
+    val result = minimizer.minimize(costFunction)
+    val dt = (System.nanoTime() - t0) / 1000000
+    val minimum = costFunction.valueAt(result)
+    println("found minimum: $minimum for $dt ms")
+    println("values " + result.map { it.toString() }.joinToString(", "))
+    return result
   }
 
 }

@@ -15,6 +15,7 @@ class LogLinearSentenceBreakerFeatureSet {
   init {
     _features.add { ws, i, tag -> nextIsLowercaseFeature(ws, i, tag) }
     _features.add { ws, i, tag -> sentenceBreakButNotPeriod(ws, i, tag) }
+    _features.add { ws, i, tag -> period(ws, i, tag) }
   }
 
   private fun nextIsLowercaseFeature(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
@@ -33,5 +34,10 @@ class LogLinearSentenceBreakerFeatureSet {
     val isPeriod = word.last() == '.'
 
     return tag == SentenceBreakerTag.SentenceBreak && isSentenceEndChar && !isPeriod
+  }
+
+  private fun period(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
+    val word = words[index]
+    return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
   }
 }
