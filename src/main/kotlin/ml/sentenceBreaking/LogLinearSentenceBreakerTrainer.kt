@@ -1,6 +1,7 @@
 package ml.sentenceBreaking
 
 import com.github.lbfgs4j.LbfgsMinimizer
+import com.github.lbfgs4j.liblbfgs.Function
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
@@ -61,13 +62,30 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
     println("Computing parameters")
     val t0 = System.nanoTime()
     val minimizer = LbfgsMinimizer()
-    val costFunction = LogLinearCostFunction(lambda, trainingData.take(15))
+    val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, trainingData.take(100)))
     val result = minimizer.minimize(costFunction)
     val dt = (System.nanoTime() - t0) / 1000000
     val minimum = costFunction.valueAt(result)
-    println("found minimum: $minimum for $dt ms")
+    println("found maximum: $minimum for $dt ms")
     println("values " + result.map { it.toString() }.joinToString(", "))
     return result
+  }
+
+}
+
+class InvertSignFunction(private val function: Function) : Function {
+  override fun getDimension(): Int {
+    return function.dimension
+  }
+
+  override fun gradientAt(xs: DoubleArray): DoubleArray {
+    val gradientAt = function.gradientAt(xs).map { -it }.toDoubleArray()
+    return gradientAt
+  }
+
+  override fun valueAt(x: DoubleArray): Double {
+    val valueAt = function.valueAt(x)
+    return -valueAt
   }
 
 }

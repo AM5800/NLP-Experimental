@@ -19,18 +19,15 @@ class LogLinearCostFunction(val lambda: Double, private val trainingData: List<L
         val valueAtK = trainingData[i][k].answer.toInt()
         result[k] += valueAtK
 
-        var sum = 0.0
         for (y in 0..Y - 1) {
           val valueAtKGivenY = trainingData[i][k].by(y).toInt()
           val p = computeP(y, i, x)
 
-          sum += valueAtKGivenY * p
+          result[k] += valueAtKGivenY * p
         }
-
-        result[k] -= Math.log(sum)
       }
 
-      val regularizationTerm = x[k] * -lambda
+      val regularizationTerm = x[k] * lambda
       result[k] -= regularizationTerm
     }
 
@@ -52,7 +49,7 @@ class LogLinearCostFunction(val lambda: Double, private val trainingData: List<L
   override fun valueAt(x: DoubleArray): Double {
     val linearTerm = trainingData.map { dot(x, it.map { it.answer }.toBooleanArray()) }.sum()
 
-    var logTerm = 0.0
+    var logSumTerm = 0.0
     for (i in 0..n - 1) {
 
       var expTerm = 0.0
@@ -62,12 +59,12 @@ class LogLinearCostFunction(val lambda: Double, private val trainingData: List<L
         expTerm += Math.exp(dotProduct)
       }
 
-      logTerm -= Math.log(expTerm)
+      logSumTerm += Math.log(expTerm)
     }
 
     val regularizationTerm = x.map { it * it }.sum() * lambda / 2
 
-    return linearTerm + logTerm - regularizationTerm
+    return linearTerm - logSumTerm - regularizationTerm
   }
 
 }
