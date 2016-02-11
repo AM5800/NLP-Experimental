@@ -2,69 +2,46 @@ package ml.sentenceBreaking
 
 import com.github.lbfgs4j.liblbfgs.Function
 
-class LogLinearCostFunction(val lambda: Double, private val trainingData: List<List<TrainingTableEntry>>) : Function {
-  private val n = trainingData.size
-  private val m = trainingData.first().size
-  private val Y = trainingData.first().first().values.size
+class LogLinearCostFunction(val lambda: Double, private val trainingData: List<TrainingTableEntry>) : Function {
+  private val m = trainingData.first().M
 
   override fun getDimension(): Int {
     return m
   }
 
-  override fun gradientAt(x: DoubleArray): DoubleArray {
+  override fun gradientAt(vs: DoubleArray): DoubleArray {
     val result = DoubleArray(m)
 
     for (k in 0..m - 1) {
-      for (i in 0..n - 1) {
-        val valueAtK = trainingData[i][k].answer.toInt()
-        result[k] += valueAtK
+      val empiricalCounts = trainingData.map { entry -> entry.answerAt(k).toInt() }.sum()
 
-        for (y in 0..Y - 1) {
-          val valueAtKGivenY = trainingData[i][k].by(y).toInt()
-          val p = computeP(y, i, x)
+      val expectedCounts = trainingData.map { entry ->
+        SentenceBreakerTag.values().map { tag ->
+          val featureValue = entry.answerAt(k, tag)
+          if (featureValue) computeP(entry, vs, tag) else 0.0
+        }.sum()
+      }.sum()
 
-          result[k] += valueAtKGivenY * p
-        }
-      }
-
-      val regularizationTerm = x[k] * lambda
-      result[k] -= regularizationTerm
+      val regularizationTerm = vs[k] * lambda
+      result[k] = empiricalCounts - expectedCounts - regularizationTerm
     }
 
     return result
   }
 
-  private fun computeP(y: Int, i: Int, vs: DoubleArray): Double {
-    val entries = trainingData[i]
-    val nom = Math.exp(dot(vs, entries.map { it.by(y) }.toBooleanArray()))
+  private fun computeP(entry: TrainingTableEntry, vs: DoubleArray, tag: SentenceBreakerTag = entry.correctTag): Double {
+    val nominator = Math.exp(dot(vs, entry.featureResultsAtTag(tag)))
+    val denominator = SentenceBreakerTag.values().map { tag ->
+      Math.exp(dot(vs, entry.featureResultsAtTag(tag)))
+    }.sum()
 
-    var denom = 0.0
-    for (yy in 0..Y - 1) {
-      denom += Math.exp(dot(vs, entries.map { it.by(yy) }.toBooleanArray()))
-    }
-
-    return nom / denom
+    return nominator / denominator
   }
 
-  override fun valueAt(x: DoubleArray): Double {
-    val linearTerm = trainingData.map { dot(x, it.map { it.answer }.toBooleanArray()) }.sum()
-
-    var logSumTerm = 0.0
-    for (i in 0..n - 1) {
-
-      var expTerm = 0.0
-      for (y in 0..Y - 1) {
-        val fValues = trainingData[i].map { it.by(y) }.toBooleanArray()
-        val dotProduct = dot(x, fValues)
-        expTerm += Math.exp(dotProduct)
-      }
-
-      logSumTerm += Math.log(expTerm)
-    }
-
-    val regularizationTerm = x.map { it * it }.sum() * lambda / 2
-
-    return linearTerm - logSumTerm - regularizationTerm
+  override fun valueAt(vs: DoubleArray): Double {
+    val pSumTerm = trainingData.mapIndexed { i, entry -> Math.log(computeP(entry, vs)) }.sum()
+    val regularizationTerm = lambda / 2 * vs.map { it * it }.sum()
+    return pSumTerm - regularizationTerm
   }
 
 }
