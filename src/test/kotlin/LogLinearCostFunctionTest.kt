@@ -1,4 +1,4 @@
-import ml.sentenceBreaking.LogLinearCostFunction
+import ml.sentenceBreaking.MEMM.LogLinearCostFunction
 import ml.sentenceBreaking.SentenceBreakerTag
 import ml.sentenceBreaking.TrainingTableEntry
 import org.junit.Assert

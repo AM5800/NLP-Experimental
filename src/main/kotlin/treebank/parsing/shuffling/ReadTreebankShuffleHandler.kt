@@ -11,12 +11,14 @@ class ReadTreebankShuffleHandler(private val repository: TreebankShuffleReposito
                                  private val range: RelativeRange) : TreebankParserHandler() {
   private var shuffle: HashMap<String, Int>? = null
   private var skip = false
+  private var currentSentence: String = ""
 
   override fun beginTreebank(info: TreebankInfo) {
     shuffle = repository.getShuffle(info)
   }
 
   override fun beginSentence(id: String) {
+    currentSentence = id
     val shuffle = this.shuffle!!
     val index = shuffle[id]!!
     skip = !range.accept(index, shuffle.size)

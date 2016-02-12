@@ -1,4 +1,10 @@
-import ml.sentenceBreaking.*
+import ml.sentenceBreaking.HeuristicSentenceBreaker
+import ml.sentenceBreaking.MEMM.LogLinearSentenceBreaker
+import ml.sentenceBreaking.MEMM.LogLinearSentenceBreakerFeatureSet
+import ml.sentenceBreaking.MEMM.LogLinearSentenceBreakerTrainer
+import ml.sentenceBreaking.SentenceBreakerPerformanceTester
+import ml.sentenceBreaking.SentenceBreakerTestDataMaker
+import ml.sentenceBreaking.SentenceBreakingHandler
 import treebank.TreebankRepository
 import treebank.parsing.NegraParser
 import treebank.parsing.TreebankParsersSet

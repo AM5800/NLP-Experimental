@@ -1,7 +1,9 @@
-package ml.sentenceBreaking
+package ml.sentenceBreaking.MEMM
 
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function
+import ml.sentenceBreaking.SentenceBreakerTag
+import ml.sentenceBreaking.TrainingTableEntry
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
@@ -11,31 +13,11 @@ fun Boolean.toInt(): Int {
   return 0
 }
 
-class TrainingTableEntry(val correctTag: SentenceBreakerTag, features: List<(SentenceBreakerTag) -> Boolean>) {
-  private val values = SentenceBreakerTag.values().map { tag ->
-    features.map { feature ->
-      feature(tag)
-    }.toBooleanArray()
-  }
-
-  val M: Int = values.first().size
-
-  fun answerAt(k: Int): Boolean {
-    return values[SentenceBreakerTag.values().indexOf(correctTag)][k]
-  }
-
-  fun answerAt(k: Int, tag: SentenceBreakerTag): Boolean {
-    return values[SentenceBreakerTag.values().indexOf(tag)][k]
-  }
-
-  fun featureResultsAtTag(tag: SentenceBreakerTag): BooleanArray {
-    return values[SentenceBreakerTag.values().indexOf(tag)]
-  }
-}
-
 class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet) : TreebankParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
   private val trainingData = ArrayList<TrainingTableEntry>()
+  private val specialFeatureSet = LogLinearSpecialFeatureSet()
+
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
     queue.addLast(Pair(word, SentenceBreakerTag.Regular))
@@ -60,22 +42,25 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
       { tag: SentenceBreakerTag -> feature(words, offset, tag) }
     }
 
+    specialFeatureSet.addTrainingSample(words, offset, correctTag, trainingData.size)
+
     trainingData.add(TrainingTableEntry(correctTag, features))
 
     queue.removeFirst()
   }
 
-  fun computeParameters(lambda: Double): DoubleArray {
+  fun computeParameters(lambda: Double): TrainedFeatureSet {
     println("Computing parameters")
     val t0 = System.nanoTime()
     val minimizer = LbfgsMinimizer()
-    val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, trainingData))
+    val updatedTrainingData = specialFeatureSet.merge(trainingData)
+    val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, updatedTrainingData))
     val result = minimizer.minimize(costFunction)
     val dt = (System.nanoTime() - t0) / 1000000
     val minimum = costFunction.valueAt(result)
     println("found maximum: $minimum for $dt ms")
     println("values " + result.map { it.toString() }.joinToString(", "))
-    return result
+    return TrainedFeatureSet(featureSet, specialFeatureSet, result)
   }
 
 }

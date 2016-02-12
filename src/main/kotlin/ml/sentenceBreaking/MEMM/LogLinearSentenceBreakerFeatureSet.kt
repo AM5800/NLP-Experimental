@@ -1,5 +1,7 @@
-package ml.sentenceBreaking
+package ml.sentenceBreaking.MEMM
 
+import ml.sentenceBreaking.SentenceBreakerTag
+import ml.sentenceBreaking.SentenceBreakerUtils
 import java.util.*
 
 class LogLinearSentenceBreakerFeatureSet {
@@ -24,7 +26,9 @@ class LogLinearSentenceBreakerFeatureSet {
     val word = words[index]
     val isSentenceEndChar = SentenceBreakerUtils.isSentenceEndChar(word.last())
     val nextIsLowercase = words[index + 1].first().isLowerCase()
-    if (isSentenceEndChar && nextIsLowercase && tag == SentenceBreakerTag.SentenceBreak) return true
+    if (isSentenceEndChar && nextIsLowercase && tag == SentenceBreakerTag.Regular) {
+      return true
+    }
     return false
   }
 
@@ -39,5 +43,9 @@ class LogLinearSentenceBreakerFeatureSet {
   private fun period(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
     val word = words[index]
     return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
+  }
+
+  fun evaluate(words: Iterable<String>, offset: Int, tag: SentenceBreakerTag): BooleanArray {
+    throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }
