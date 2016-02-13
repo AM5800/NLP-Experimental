@@ -1,5 +1,7 @@
 package ml.sentenceBreaking
 
+import util.clamp
+
 
 class SentenceBreakerPerformanceTester {
   fun getPerformance(breaker: SentenceBreaker,
@@ -28,8 +30,9 @@ class SentenceBreakerPerformanceTester {
 
   private fun formatError(data: SentenceBreakerTestData, end: Int, expected: Set<Int>): String {
     val startIndex = end - 50
-    val firstPart = data.text.substring(if (startIndex < 0) 0 else startIndex, end)
-    val secondPart = data.text.subSequence(end, end + 10)
+    val firstPart = data.text.substring(startIndex.clamp(0), end)
+    val newEnd = end + 10
+    val secondPart = data.text.substring(end, newEnd.clamp(0, data.text.length - 1))
 
     return firstPart + "/" + secondPart
   }

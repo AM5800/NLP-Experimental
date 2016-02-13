@@ -2,7 +2,7 @@ package ml.sentenceBreaking.MEMM
 
 import ml.sentenceBreaking.SentenceBreakerTag
 import ml.sentenceBreaking.SentenceBreakerUtils
-import ml.sentenceBreaking.dot
+import util.dot
 import java.util.*
 
 class LogLinearSentenceBreakerFeatureSet {

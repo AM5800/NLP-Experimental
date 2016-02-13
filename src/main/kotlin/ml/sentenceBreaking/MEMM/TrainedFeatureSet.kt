@@ -11,9 +11,14 @@ class TrainedFeatureSet(private val features: LogLinearSentenceBreakerFeatureSet
 
   fun reachVerdict(words: List<String>, offset: Int): SentenceBreakerTag {
     val pRegular1 = features.evaluate(words, offset, SentenceBreakerTag.Regular, vs)
+    val pBreak1 = features.evaluate(words, offset, SentenceBreakerTag.SentenceBreak, vs)
     val pRegular2 = additionalFeatures.evaluate(words, offset, SentenceBreakerTag.Regular, vs.drop(features.features.size))
+    val pBreak2 = additionalFeatures.evaluate(words, offset, SentenceBreakerTag.SentenceBreak, vs.drop(features.features.size))
 
-    if (pRegular1 + pRegular2 >= 0.5) return SentenceBreakerTag.Regular
-    return SentenceBreakerTag.SentenceBreak
+    val pRegular = pRegular1 + pRegular2
+    val pBreak = pBreak1 + pBreak2
+
+    if (pBreak > pRegular) return SentenceBreakerTag.SentenceBreak
+    return SentenceBreakerTag.Regular
   }
 }

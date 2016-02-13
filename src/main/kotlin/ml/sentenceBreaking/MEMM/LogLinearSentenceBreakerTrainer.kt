@@ -6,13 +6,14 @@ import ml.sentenceBreaking.SentenceBreakerTag
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
+import java.util.logging.Logger
 
 fun Boolean.toInt(): Int {
   if (this == true) return 1
   return 0
 }
 
-class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet) : TreebankParserHandler() {
+class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet, private val logger: Logger) : TreebankParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
   private val trainingData = ArrayList<TrainingTableEntry>()
   private val truncationsFeatureSet = LogLinearTruncationsFeatureSet()
@@ -49,16 +50,13 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
   }
 
   fun getTrainedFeatureSet(lambda: Double): TrainedFeatureSet {
-    println("Computing parameters")
-    val t0 = System.nanoTime()
+    logger.info("Computing parameters")
     val minimizer = LbfgsMinimizer()
     val updatedTrainingData = truncationsFeatureSet.merge(trainingData)
+    logger.info("Training data merged")
     val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, updatedTrainingData))
     val result = minimizer.minimize(costFunction)
-    val dt = (System.nanoTime() - t0) / 1000000
-    val minimum = costFunction.valueAt(result)
-    println("found maximum: $minimum for $dt ms")
-    println("values " + result.map { it.toString() }.joinToString(", "))
+    logger.info("Found maximum with values " + result.map { it.toString() }.joinToString(", "))
     return TrainedFeatureSet(featureSet, truncationsFeatureSet, result)
   }
 

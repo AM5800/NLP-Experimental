@@ -1,4 +1,4 @@
-package ml.sentenceBreaking
+package util
 
 fun dot(x: Iterable<Double>, y: Iterable<Boolean>): Double {
   return x.zip(y).map { pair ->

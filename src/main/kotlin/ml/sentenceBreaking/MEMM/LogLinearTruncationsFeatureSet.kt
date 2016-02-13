@@ -43,7 +43,7 @@ class LogLinearTruncationsFeatureSet {
             .flatMap { pair ->
               val k = truncationToK[pair.first]
               if (k == null) emptyList()
-              else pair.second.map { Pair(k, it) }
+              else pair.second.map { Pair(it, k) }
             }.toMap()
 
     val newTrainingData = trainingData.mapIndexed { i, entry ->

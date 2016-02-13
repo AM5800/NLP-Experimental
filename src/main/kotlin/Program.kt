@@ -35,7 +35,7 @@ fun main(args: Array<String>) {
   val heuristicBreaker = HeuristicSentenceBreaker()
 
   val featureSet = LogLinearSentenceBreakerFeatureSet()
-  val logLinearBreakerTrainer = LogLinearSentenceBreakerTrainer(featureSet)
+  val logLinearBreakerTrainer = LogLinearSentenceBreakerTrainer(featureSet, logger)
 
   val handler = SentenceBreakingHandler(heuristicBreaker)
 
@@ -45,17 +45,21 @@ fun main(args: Array<String>) {
 
   val maker = SentenceBreakerTestDataMaker()
 
+  logger.info("Parsing...")
   parsers.parse(treebanksRepo.getTreebanks().first { it.treebankPath.absolutePath.contains("TIGER", true) },
           seedRepo.newHandler(handler, trainingRange),
           seedRepo.newHandler(maker, testRange),
           seedRepo.newHandler(logLinearBreakerTrainer, trainingRange))
+  logger.info("Parsing done")
 
   val tester = SentenceBreakerPerformanceTester()
   val logLinearBreaker = LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(20.0))
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
-  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData(), true)
+  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData())
   println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
   println("LogLinear sentence breaking performance: $logLinearBreakerPerformance")
+
+  logger.info("Done")
 }
 
 fun initLogger(): Logger {
@@ -99,6 +103,5 @@ class CustomLoggerFormatter : Formatter() {
       return "+" + formatter.print(duration.toPeriod())
     }
   }
-
 }
 

@@ -11,14 +11,19 @@ import java.io.File
 import java.io.FileReader
 import java.io.PrintWriter
 import java.util.*
+import java.util.logging.Logger
 
 
 class TreebankShuffleRepository(private val treebanksRepo: TreebankRepository,
-                                private val parsers: TreebankParsersSet) {
+                                private val parsers: TreebankParsersSet,
+                                private val logger: Logger) {
+
   fun shuffleIfNeeded(selector: SentenceSelector) {
     for (treebankInfo in treebanksRepo.getTreebanks()) {
       val shuffleFilePath = getShufflePath(treebankInfo) // TODO better error handling
       if (shuffleFilePath.exists()) continue
+
+      logger.info("Shuffling $shuffleFilePath")
 
       selector.clear()
       parsers.parse(treebankInfo, selector)
@@ -30,6 +35,8 @@ class TreebankShuffleRepository(private val treebanksRepo: TreebankRepository,
         writer.println(shuffled.size)
         shuffled.forEach { writer.println(it) }
       }
+
+      logger.info("Shuffle done")
     }
   }
 
