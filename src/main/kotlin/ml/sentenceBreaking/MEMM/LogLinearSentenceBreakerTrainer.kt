@@ -3,7 +3,6 @@ package ml.sentenceBreaking.MEMM
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function
 import ml.sentenceBreaking.SentenceBreakerTag
-import ml.sentenceBreaking.TrainingTableEntry
 import treebank.parsing.ParsePartOfSpeech
 import treebank.parsing.TreebankParserHandler
 import java.util.*
@@ -16,7 +15,7 @@ fun Boolean.toInt(): Int {
 class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceBreakerFeatureSet) : TreebankParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
   private val trainingData = ArrayList<TrainingTableEntry>()
-  private val specialFeatureSet = LogLinearSpecialFeatureSet()
+  private val truncationsFeatureSet = LogLinearTruncationsFeatureSet()
 
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
@@ -42,25 +41,25 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
       { tag: SentenceBreakerTag -> feature(words, offset, tag) }
     }
 
-    specialFeatureSet.addTrainingSample(words, offset, correctTag, trainingData.size)
+    truncationsFeatureSet.addTrainingSample(words, offset, correctTag, trainingData.size)
 
-    trainingData.add(TrainingTableEntry(correctTag, features))
+    trainingData.add(TrainingTableEntry.create(correctTag, features))
 
     queue.removeFirst()
   }
 
-  fun computeParameters(lambda: Double): TrainedFeatureSet {
+  fun getTrainedFeatureSet(lambda: Double): TrainedFeatureSet {
     println("Computing parameters")
     val t0 = System.nanoTime()
     val minimizer = LbfgsMinimizer()
-    val updatedTrainingData = specialFeatureSet.merge(trainingData)
+    val updatedTrainingData = truncationsFeatureSet.merge(trainingData)
     val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, updatedTrainingData))
     val result = minimizer.minimize(costFunction)
     val dt = (System.nanoTime() - t0) / 1000000
     val minimum = costFunction.valueAt(result)
     println("found maximum: $minimum for $dt ms")
     println("values " + result.map { it.toString() }.joinToString(", "))
-    return TrainedFeatureSet(featureSet, specialFeatureSet, result)
+    return TrainedFeatureSet(featureSet, truncationsFeatureSet, result)
   }
 
 }

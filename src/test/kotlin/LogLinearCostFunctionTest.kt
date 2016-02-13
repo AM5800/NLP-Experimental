@@ -1,6 +1,6 @@
 import ml.sentenceBreaking.MEMM.LogLinearCostFunction
+import ml.sentenceBreaking.MEMM.TrainingTableEntry
 import ml.sentenceBreaking.SentenceBreakerTag
-import ml.sentenceBreaking.TrainingTableEntry
 import org.junit.Assert
 import org.junit.Test
 
@@ -21,8 +21,8 @@ class LogLinearCostFunctionTest {
 
   private fun createTrainingData(): List<TrainingTableEntry> {
     val feature = { tag: SentenceBreakerTag -> tag == SentenceBreakerTag.SentenceBreak }
-    val entry1 = TrainingTableEntry(SentenceBreakerTag.Regular, listOf(feature))
-    val entry2 = TrainingTableEntry(SentenceBreakerTag.SentenceBreak, listOf(feature))
+    val entry1 = TrainingTableEntry.create(SentenceBreakerTag.Regular, listOf(feature))
+    val entry2 = TrainingTableEntry.create(SentenceBreakerTag.SentenceBreak, listOf(feature))
 
     return listOf(entry1, entry2)
   }

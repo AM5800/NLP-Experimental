@@ -2,7 +2,6 @@ package ml.sentenceBreaking.MEMM
 
 import com.github.lbfgs4j.liblbfgs.Function
 import ml.sentenceBreaking.SentenceBreakerTag
-import ml.sentenceBreaking.TrainingTableEntry
 import ml.sentenceBreaking.dot
 
 class LogLinearCostFunction(val lambda: Double, private val trainingData: List<TrainingTableEntry>) : Function {

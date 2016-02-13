@@ -2,6 +2,7 @@ package ml.sentenceBreaking.MEMM
 
 import ml.sentenceBreaking.SentenceBreakerTag
 import ml.sentenceBreaking.SentenceBreakerUtils
+import ml.sentenceBreaking.dot
 import java.util.*
 
 class LogLinearSentenceBreakerFeatureSet {
@@ -45,7 +46,9 @@ class LogLinearSentenceBreakerFeatureSet {
     return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
   }
 
-  fun evaluate(words: Iterable<String>, offset: Int, tag: SentenceBreakerTag): BooleanArray {
-    throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+  fun evaluate(words: List<String>, offset: Int, tag: SentenceBreakerTag, vs: DoubleArray): Double {
+    val featureVector = features.map { it(words, offset, tag) }
+
+    return dot(vs.take(featureVector.size), featureVector)
   }
 }
