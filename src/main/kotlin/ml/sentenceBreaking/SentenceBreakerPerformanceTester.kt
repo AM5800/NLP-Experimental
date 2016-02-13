@@ -34,6 +34,6 @@ class SentenceBreakerPerformanceTester {
     val newEnd = end + 10
     val secondPart = data.text.substring(end, newEnd.clamp(0, data.text.length - 1))
 
-    return firstPart + "/" + secondPart
+    return firstPart + "<br>" + secondPart
   }
 }

@@ -1,6 +1,7 @@
 package ml.sentenceBreaking.LogLinear
 
 import ml.sentenceBreaking.SentenceBreakerTag
+import ml.sentenceBreaking.SentenceBreakerUtils
 import java.util.*
 
 class LogLinearTruncationsFeatureSet {
@@ -10,17 +11,12 @@ class LogLinearTruncationsFeatureSet {
   fun addTrainingSample(words: List<String>, offset: Int, tag: SentenceBreakerTag, index: Int) {
     if (tag != SentenceBreakerTag.Regular) return
 
-    val word = getWord(words, offset)
+    if (words[offset] != ".") return
+    val prevWord = words[offset - 1]
+    if (SentenceBreakerUtils.isNumber(prevWord)) return
+    if (prevWord.length <= 1) return
 
-    val wordWithoutDot = word.trimEnd('.')
-    if (word.endsWith('.') && wordWithoutDot.length >= 2) {
-      addOccurrence(wordWithoutDot, index)
-    } else if (word.endsWith('.')) {
-      val prevWord = getWord(words, offset - 1)
-      if (prevWord.endsWith('.') || prevWord.length < 2) return
-
-      addOccurrence(prevWord, index)
-    }
+    addOccurrence(prevWord, index)
   }
 
   private fun addOccurrence(word: String, index: Int) {

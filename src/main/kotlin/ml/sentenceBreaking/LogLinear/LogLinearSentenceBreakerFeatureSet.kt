@@ -19,6 +19,9 @@ class LogLinearSentenceBreakerFeatureSet {
     _features.add { ws, i, tag -> nextIsLowercaseFeature(ws, i, tag) }
     _features.add { ws, i, tag -> sentenceBreakButNotPeriod(ws, i, tag) }
     _features.add { ws, i, tag -> period(ws, i, tag) }
+    _features.add { ws, i, tag -> periodBetweenNumbers(ws, i, tag) }
+    _features.add { ws, i, tag -> periodAfterNumber(ws, i, tag) }
+    _features.add { ws, i, tag -> periodAfterSingleChar(ws, i, tag) }
   }
 
   private fun nextIsLowercaseFeature(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
@@ -44,6 +47,25 @@ class LogLinearSentenceBreakerFeatureSet {
   private fun period(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
     val word = words[index]
     return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
+  }
+
+  private fun periodBetweenNumbers(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+    return SentenceBreakerUtils.isNumber(words[index - 1]) && SentenceBreakerUtils.isNumber(words[index + 1])
+  }
+
+  private fun periodAfterNumber(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+    return SentenceBreakerUtils.isNumber(words[index - 1])
+  }
+
+  private fun periodAfterSingleChar(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+
+    val prevWord = words[index - 1]
+    val result = prevWord.length == 1 && prevWord.first().isLetter()
+
+    return result
   }
 
   fun evaluate(words: List<String>, offset: Int, tag: SentenceBreakerTag, vs: DoubleArray): Double {

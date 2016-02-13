@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
 
   val maker = SentenceBreakerTestDataMaker()
 
-  logger.info("Parsing...")
+  logger.info("Parsing treebanks")
   parsers.parse(treebanksRepo.getTreebanks().first { it.treebankPath.absolutePath.contains("TIGER", true) },
           seedRepo.newHandler(handler, trainingRange),
           seedRepo.newHandler(maker, testRange),
@@ -56,7 +56,7 @@ fun main(args: Array<String>) {
 
   val logLinearBreaker = LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(20.0))
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
-  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData())
+  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData(), true)
   println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
   println("LogLinear sentence breaking performance: $logLinearBreakerPerformance")
 

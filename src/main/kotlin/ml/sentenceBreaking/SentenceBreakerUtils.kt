@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 class SentenceBreakerUtils {
   companion object {
     val romanNumberRegex = Pattern.compile("[IVXLCDM]+")
-    val numberRegex = Pattern.compile("[0-9\\.,]+")
+    val numberRegex = Pattern.compile("[0-9]+([.,][0-9]+)?")
     val punctuationChars = LinkedHashSet<Char>(".!?,<>()[]{}!:;'`".toList())
     val abbreviationRegex = Pattern.compile("(\\w\\.)+")
 
@@ -17,8 +17,11 @@ class SentenceBreakerUtils {
 
     fun isNumber(word: String): Boolean {
       if (numberRegex.matcher(word).matches()) return true
-      if (romanNumberRegex.matcher(word).matches()) return true
       return false
+    }
+
+    fun isRomanNumber(word: String): Boolean {
+      return romanNumberRegex.matcher(word).matches()
     }
 
     fun isWebLink(word: String): Boolean {
