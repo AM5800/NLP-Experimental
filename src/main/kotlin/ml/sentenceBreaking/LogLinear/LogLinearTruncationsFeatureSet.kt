@@ -36,8 +36,11 @@ class LogLinearTruncationsFeatureSet {
   }
 
   fun merge(trainingData: List<TrainingTableEntry>): List<TrainingTableEntry> {
+    filterSingleOccurrences()
+
     val currentM = trainingData.first().M
     val targetM = truncationsOccurrences.size + currentM
+
 
     val indexToK = truncationsOccurrences.toList()
             .flatMap { pair ->
@@ -54,6 +57,20 @@ class LogLinearTruncationsFeatureSet {
     }
 
     return newTrainingData
+  }
+
+  private fun filterSingleOccurrences() {
+    val occurrences = truncationsOccurrences.toList()
+
+    truncationsOccurrences.clear()
+    truncationToK.clear()
+
+    for (pair in occurrences) {
+      if (pair.second.size > 1) {
+        truncationToK.put(pair.first, truncationToK.size)
+        truncationsOccurrences.put(pair.first, pair.second)
+      }
+    }
   }
 
   private fun evaluate(word: String, vs: List<Double>): Double {

@@ -52,14 +52,13 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: LogLinearSentenceB
   fun getTrainedFeatureSet(lambda: Double): TrainedFeatureSet {
     logger.info("Computing parameters")
     val minimizer = LbfgsMinimizer()
-    val updatedTrainingData = truncationsFeatureSet.merge(trainingData)
-    logger.info("Training data merged")
-    val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, updatedTrainingData))
+    val merged = truncationsFeatureSet.merge(trainingData)
+    logger.info("Training data merged. Using ${merged.first().M} features and ${merged.size} training samples")
+    val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, merged))
     val result = minimizer.minimize(costFunction)
     logger.info("Found maximum with values " + result.map { it.toString() }.joinToString(", "))
     return TrainedFeatureSet(featureSet, truncationsFeatureSet, result)
   }
-
 }
 
 class InvertSignFunction(private val function: Function) : Function {
