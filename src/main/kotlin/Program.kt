@@ -1,7 +1,7 @@
 import ml.sentenceBreaking.HeuristicSentenceBreaker
-import ml.sentenceBreaking.MEMM.LogLinearSentenceBreaker
-import ml.sentenceBreaking.MEMM.LogLinearSentenceBreakerFeatureSet
-import ml.sentenceBreaking.MEMM.LogLinearSentenceBreakerTrainer
+import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
+import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerFeatureSet
+import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler

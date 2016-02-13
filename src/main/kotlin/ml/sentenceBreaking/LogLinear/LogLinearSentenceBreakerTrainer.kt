@@ -1,4 +1,4 @@
-package ml.sentenceBreaking.MEMM
+package ml.sentenceBreaking.LogLinear
 
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function

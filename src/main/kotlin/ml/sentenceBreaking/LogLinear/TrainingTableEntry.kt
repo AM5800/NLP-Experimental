@@ -1,4 +1,4 @@
-package ml.sentenceBreaking.MEMM
+package ml.sentenceBreaking.LogLinear
 
 import ml.sentenceBreaking.SentenceBreakerTag
 
@@ -30,7 +30,7 @@ class TrainingTableEntry private constructor(val correctTag: SentenceBreakerTag,
     fun create(entry: TrainingTableEntry, newM: Int, fillFunction: (SentenceBreakerTag, Int) -> Boolean): TrainingTableEntry {
 
       val values = SentenceBreakerTag.values().mapIndexed { tagIndex, tag ->
-        (0..newM-1).map { k ->
+        (0..newM - 1).map { k ->
           if (k < entry.M) entry.values[tagIndex][k]
           else fillFunction(tag, k)
         }.toBooleanArray()

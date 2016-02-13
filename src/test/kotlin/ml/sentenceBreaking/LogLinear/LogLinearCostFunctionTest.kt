@@ -1,5 +1,5 @@
-import ml.sentenceBreaking.MEMM.LogLinearCostFunction
-import ml.sentenceBreaking.MEMM.TrainingTableEntry
+package ml.sentenceBreaking.LogLinear
+
 import ml.sentenceBreaking.SentenceBreakerTag
 import org.junit.Assert
 import org.junit.Test

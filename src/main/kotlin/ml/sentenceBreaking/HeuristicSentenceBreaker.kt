@@ -49,8 +49,7 @@ class HeuristicSentenceBreaker : SentenceBreaker {
       return true
     }
 
-    val prevWord = findPrevWord(text, sentenceStart, probableSentenceEnd)
-    if (prevWord == null) return false
+    val prevWord = findPrevWord(text, sentenceStart, probableSentenceEnd) ?: return false
 
     // example: m.
     //if (prevWord.length == 1 && prevWord.first().isLetter()) return false

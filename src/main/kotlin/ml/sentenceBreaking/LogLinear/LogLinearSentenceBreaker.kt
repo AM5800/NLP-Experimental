@@ -1,4 +1,4 @@
-package ml.sentenceBreaking.MEMM
+package ml.sentenceBreaking.LogLinear
 
 import ml.sentenceBreaking.*
 import java.util.*
