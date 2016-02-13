@@ -20,8 +20,8 @@ class ReadTreebankShuffleHandler(private val repository: TreebankShuffleReposito
   override fun beginSentence(id: String) {
     currentSentence = id
     val shuffle = this.shuffle!!
-    val index = shuffle[id]!!
-    skip = !range.accept(index, shuffle.size)
+    val index = shuffle[id]
+    skip = index == null || !range.accept(index, shuffle.size)
 
     if (!skip) {
       original.beginSentence(id)
