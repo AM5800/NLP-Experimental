@@ -5,11 +5,11 @@ import ml.sentenceBreaking.SentenceBreakerUtils
 import util.dot
 import java.util.*
 
-class LogLinearSentenceBreakerFeatureSet {
-  val history = -3
+class HandMadeFeatureSet {
+  val history = 2
   val future = 1
-  val requiredStackSize = future - history
-  val currentWordOffset = -history - 1
+  val requiredStackSize = future + history + 1
+  val currentWordOffset = history
 
   private val _features = ArrayList<(List<String>, Int, SentenceBreakerTag) -> Boolean>()
   val features: List<(List<String>, Int, SentenceBreakerTag) -> Boolean>
@@ -46,7 +46,8 @@ class LogLinearSentenceBreakerFeatureSet {
 
   private fun period(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
     val word = words[index]
-    return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
+    val prevWord = words[index - 1]
+    return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.') && prevWord.length > 1
   }
 
   private fun periodBetweenNumbers(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
