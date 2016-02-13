@@ -53,6 +53,7 @@ fun main(args: Array<String>) {
   logger.info("Parsing done")
 
   val tester = SentenceBreakerPerformanceTester()
+
   val logLinearBreaker = LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(20.0))
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
   val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData())
@@ -76,6 +77,7 @@ class CustomLoggerFormatter : Formatter() {
 
   override fun format(record: LogRecord?): String? {
     if (record == null) return null
+    assert(record.threadID == 1) { "Multithreaded logging is not supported yet" }
 
     val time = formatTime(record.millis)
     return "$time: ${record.message}\n"
@@ -83,6 +85,8 @@ class CustomLoggerFormatter : Formatter() {
 
   private fun formatTime(millis: Long): String {
     val t = lastTime
+    lastTime = millis
+
     val formatter = PeriodFormatterBuilder()
             .printZeroAlways()
             .minimumPrintedDigits(2)
@@ -96,7 +100,6 @@ class CustomLoggerFormatter : Formatter() {
 
     if (t == null) {
       val duration = Duration(0)
-      lastTime = millis
       return formatter.print(duration.toPeriod())
     } else {
       val duration = Duration(millis - t)
