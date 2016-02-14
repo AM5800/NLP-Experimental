@@ -1,6 +1,6 @@
 import ml.sentenceBreaking.HeuristicSentenceBreaker
+import ml.sentenceBreaking.LogLinear.HandMadeFeatureSet
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
-import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerFeatureSet
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
 
   val heuristicBreaker = HeuristicSentenceBreaker()
 
-  val featureSet = LogLinearSentenceBreakerFeatureSet()
+  val featureSet = HandMadeFeatureSet()
   val logLinearBreakerTrainer = LogLinearSentenceBreakerTrainer(featureSet, logger)
 
   val handler = SentenceBreakingHandler(heuristicBreaker)
@@ -54,11 +54,16 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
 
-  val logLinearBreaker = LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(20.0))
+  val lambdas = listOf(0.0, 20.0, 50.0, 100.0, 1000.0)
+  val trainedFeatureSets = lambdas.map { logLinearBreakerTrainer.getTrainedFeatureSet(it) }
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, maker.getTestData())
-  val logLinearBreakerPerformance = tester.getPerformance(logLinearBreaker, maker.getTestData(), true)
+
   println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
-  println("LogLinear sentence breaking performance: $logLinearBreakerPerformance")
+  for (set in trainedFeatureSets) {
+    val breaker = LogLinearSentenceBreaker(set)
+    val performance = tester.getPerformance(breaker, maker.getTestData())
+    println("LogLinear sentence breaking performance (lambda=${set.lambda}): $performance")
+  }
 
   logger.info("Done")
 }

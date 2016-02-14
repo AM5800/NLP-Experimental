@@ -5,7 +5,8 @@ import ml.sentenceBreaking.SentenceBreakerTag
 
 class TrainedFeatureSet(private val features: HandMadeFeatureSet,
                         private val additionalFeatures: LogLinearTruncationsFeatureSet,
-                        private val vs: DoubleArray) {
+                        private val vs: DoubleArray,
+                        val lambda: Double) {
   val currentWordOffset = features.currentWordOffset
   val requiredStackSize = features.requiredStackSize
 
