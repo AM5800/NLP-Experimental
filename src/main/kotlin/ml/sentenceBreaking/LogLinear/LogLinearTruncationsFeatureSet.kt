@@ -12,7 +12,7 @@ class LogLinearTruncationsFeatureSet {
     if (tag != SentenceBreakerTag.Regular) return
 
     if (words[offset] != ".") return
-    val prevWord = words[offset - 1]
+    val prevWord = words[offset - 1].toLowerCase()
     if (SentenceBreakerUtils.isNumber(prevWord)) return
     if (prevWord.length <= 1) return
 
@@ -27,13 +27,7 @@ class LogLinearTruncationsFeatureSet {
     if (!truncationToK.contains(word)) truncationToK[word] = truncationToK.size
   }
 
-  private fun getWord(words: List<String>, offset: Int): String {
-    return words[offset].trim('\'', '"', '`', ',', ';', '?', ')', '(', '!', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9').toLowerCase()
-  }
-
   fun merge(trainingData: List<TrainingTableEntry>): List<TrainingTableEntry> {
-    filterSingleOccurrences()
-
     val currentM = trainingData.first().M
     val targetM = truncationsOccurrences.size + currentM
 
@@ -55,7 +49,7 @@ class LogLinearTruncationsFeatureSet {
     return newTrainingData
   }
 
-  private fun filterSingleOccurrences() {
+  fun filterSingleOccurrences() {
     val occurrences = truncationsOccurrences.toList()
 
     truncationsOccurrences.clear()
@@ -78,18 +72,9 @@ class LogLinearTruncationsFeatureSet {
   fun evaluate(words: List<String>, offset: Int, tag: SentenceBreakerTag, vs: List<Double>): Double {
     if (tag == SentenceBreakerTag.SentenceBreak) return 0.0
 
-    val word = getWord(words, offset)
-    val wordWithoutDot = word.trimEnd('.')
-    if (word.endsWith('.') && wordWithoutDot.length >= 2) {
-      return evaluate(wordWithoutDot, vs)
-    } else if (word.endsWith('.')) {
-      val prevWord = getWord(words, offset - 1)
-      if (prevWord.endsWith('.')) return 0.0
-
-      return evaluate(prevWord, vs)
-    }
-
-    return 0.0
+    if (words[offset] != ".") return 0.0
+    val prevWord = words[offset - 1].toLowerCase()
+    return evaluate(prevWord, vs)
   }
 
 }

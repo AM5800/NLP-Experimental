@@ -52,6 +52,7 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: HandMadeFeatureSet
   fun getTrainedFeatureSet(lambda: Double): TrainedFeatureSet {
     logger.info("Computing parameters. Lambda=$lambda")
     val minimizer = LbfgsMinimizer(false)
+    truncationsFeatureSet.filterSingleOccurrences()
     val merged = truncationsFeatureSet.merge(trainingData)
     logger.info("Training data merged. Using ${merged.first().M} features and ${merged.size} training samples")
     val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, merged))
