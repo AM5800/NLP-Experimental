@@ -52,13 +52,21 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: HandMadeFeatureSet
   fun getTrainedFeatureSet(lambda: Double): TrainedFeatureSet {
     logger.info("Computing parameters. Lambda=$lambda")
     val minimizer = LbfgsMinimizer(false)
-    truncationsFeatureSet.filterSingleOccurrences()
-    val merged = truncationsFeatureSet.merge(trainingData)
-    logger.info("Training data merged. Using ${merged.first().M} features and ${merged.size} training samples")
+    val merged = mergedTrainingData ?: throw Exception("Training data is not merged. Forgot to call parsingDone?")
     val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, merged))
     val result = minimizer.minimize(costFunction)
     logger.info("Found maximum with values " + result.map { it.toString() }.joinToString(", "))
     return TrainedFeatureSet(featureSet, truncationsFeatureSet, result, lambda)
+  }
+
+  private var mergedTrainingData: List<TrainingTableEntry>? = null
+
+  fun parsingDone() {
+    logger.info("Merging training data")
+    truncationsFeatureSet.filterSingleOccurrences()
+    val merged = truncationsFeatureSet.merge(trainingData)
+    mergedTrainingData = merged
+    logger.info("Training data merged. Using ${merged.first().M} features and ${merged.size} training samples")
   }
 }
 
