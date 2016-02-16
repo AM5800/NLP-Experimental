@@ -3,21 +3,15 @@ package ml.sentenceBreaking.LogLinear
 import ml.sentenceBreaking.SentenceBreakerTag
 
 
-class TrainedFeatureSet(private val features: HandMadeFeatureSet,
-                        private val additionalFeatures: LogLinearTruncationsFeatureSet,
+class TrainedFeatureSet(private val features: GroupingFeatureSet,
                         private val vs: DoubleArray,
                         val lambda: Double) {
   val currentWordOffset = features.currentWordOffset
   val requiredStackSize = features.requiredStackSize
 
   fun reachVerdict(words: List<String>, offset: Int): SentenceBreakerTag {
-    val pRegular1 = features.evaluate(words, offset, SentenceBreakerTag.Regular, vs)
-    val pBreak1 = features.evaluate(words, offset, SentenceBreakerTag.SentenceBreak, vs)
-    val pRegular2 = additionalFeatures.evaluate(words, offset, SentenceBreakerTag.Regular, vs.drop(features.features.size))
-    val pBreak2 = additionalFeatures.evaluate(words, offset, SentenceBreakerTag.SentenceBreak, vs.drop(features.features.size))
-
-    val pRegular = pRegular1 + pRegular2
-    val pBreak = pBreak1 + pBreak2
+    val pRegular = features.evaluate(words, offset, SentenceBreakerTag.Regular, vs)
+    val pBreak = features.evaluate(words, offset, SentenceBreakerTag.SentenceBreak, vs)
 
     if (pBreak > pRegular) return SentenceBreakerTag.SentenceBreak
     return SentenceBreakerTag.Regular

@@ -13,11 +13,8 @@ fun Boolean.toInt(): Int {
   return 0
 }
 
-class LogLinearSentenceBreakerTrainer(private val featureSet: HandMadeFeatureSet, private val logger: Logger) : TreebankParserHandler() {
+class LogLinearSentenceBreakerTrainer(private val featureSet: GroupingFeatureSet, private val logger: Logger) : TreebankParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
-  private val trainingData = ArrayList<TrainingTableEntry>()
-  private val truncationsFeatureSet = LogLinearTruncationsFeatureSet()
-
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
     queue.addLast(Pair(word, SentenceBreakerTag.Regular))
@@ -38,13 +35,7 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: HandMadeFeatureSet
     val offset = featureSet.currentWordOffset
     val correctTag = queue[offset].second
 
-    val features = featureSet.features.map { feature ->
-      { tag: SentenceBreakerTag -> feature(words, offset, tag) }
-    }
-
-    truncationsFeatureSet.addTrainingSample(words, offset, correctTag, trainingData.size)
-
-    trainingData.add(TrainingTableEntry.create(correctTag, features))
+    featureSet.train(words, offset, correctTag)
 
     queue.removeFirst()
   }
@@ -56,15 +47,15 @@ class LogLinearSentenceBreakerTrainer(private val featureSet: HandMadeFeatureSet
     val costFunction = InvertSignFunction(LogLinearCostFunction(lambda, merged))
     val result = minimizer.minimize(costFunction)
     logger.info("Found maximum with values " + result.map { it.toString() }.joinToString(", "))
-    return TrainedFeatureSet(featureSet, truncationsFeatureSet, result, lambda)
+    return TrainedFeatureSet(featureSet, result, lambda)
   }
 
   private var mergedTrainingData: List<TrainingTableEntry>? = null
 
   fun parsingDone() {
     logger.info("Merging training data")
-    truncationsFeatureSet.filterSingleOccurrences()
-    val merged = truncationsFeatureSet.merge(trainingData)
+    featureSet.filterSingleOccurrences()
+    val merged = featureSet.getTrainingData()
     mergedTrainingData = merged
     logger.info("Training data merged. Using ${merged.first().M} features and ${merged.size} training samples")
   }

@@ -5,23 +5,24 @@ import ml.sentenceBreaking.SentenceBreakerUtils
 import util.dot
 import java.util.*
 
-class HandMadeFeatureSet {
+class GroupingFeatureSet {
   val history = 2
   val future = 1
   val requiredStackSize = future + history + 1
   val currentWordOffset = history
 
-  private val _features = ArrayList<(List<String>, Int, SentenceBreakerTag) -> Boolean>()
-  val features: List<(List<String>, Int, SentenceBreakerTag) -> Boolean>
-    get() = _features
+  private val truncationsFeatureSet = LogLinearTruncationsFeatureSet()
+
+  private val features = ArrayList<(List<String>, Int, SentenceBreakerTag) -> Boolean>()
+  private val trainingData = ArrayList<TrainingTableEntry>()
 
   init {
-    _features.add { ws, i, tag -> nextIsLowercaseFeature(ws, i, tag) }
-    _features.add { ws, i, tag -> sentenceBreakButNotPeriod(ws, i, tag) }
-    _features.add { ws, i, tag -> period(ws, i, tag) }
-    _features.add { ws, i, tag -> periodBetweenNumbers(ws, i, tag) }
-    _features.add { ws, i, tag -> periodAfterNumber(ws, i, tag) }
-    _features.add { ws, i, tag -> periodAfterSingleChar(ws, i, tag) }
+    features.add { ws, i, tag -> nextIsLowercaseFeature(ws, i, tag) }
+    features.add { ws, i, tag -> sentenceBreakButNotPeriod(ws, i, tag) }
+    features.add { ws, i, tag -> period(ws, i, tag) }
+    features.add { ws, i, tag -> periodBetweenNumbers(ws, i, tag) }
+    features.add { ws, i, tag -> periodAfterNumber(ws, i, tag) }
+    features.add { ws, i, tag -> periodAfterSingleChar(ws, i, tag) }
   }
 
   private fun nextIsLowercaseFeature(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
@@ -44,10 +45,13 @@ class HandMadeFeatureSet {
     return tag == SentenceBreakerTag.SentenceBreak && isSentenceEndChar && !isPeriod
   }
 
-  private fun period(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    val word = words[index]
-    val prevWord = words[index - 1]
-    return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.') && prevWord.length > 1
+  private fun period(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (periodAfterNumber(words, offset, tag)) return false
+    if (periodBetweenNumbers(words, offset, tag)) return false
+    if (periodAfterSingleChar(words, offset, tag)) return false
+
+    val word = words[offset]
+    return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
   }
 
   private fun periodBetweenNumbers(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
@@ -71,7 +75,27 @@ class HandMadeFeatureSet {
 
   fun evaluate(words: List<String>, offset: Int, tag: SentenceBreakerTag, vs: DoubleArray): Double {
     val featureVector = features.map { it(words, offset, tag) }
+    val truncationsP = truncationsFeatureSet.evaluate(words, offset, tag, vs.drop(features.size))
 
-    return dot(vs.take(featureVector.size), featureVector)
+    return dot(vs.take(featureVector.size), featureVector) + truncationsP
+  }
+
+  fun train(words: List<String>, offset: Int, tag: SentenceBreakerTag) {
+
+    truncationsFeatureSet.train(words, offset, tag, trainingData.size)
+
+    val fs = features.map { feature ->
+      { tag: SentenceBreakerTag -> feature(words, offset, tag) }
+    }
+
+    trainingData.add(TrainingTableEntry.create(tag, fs))
+  }
+
+  fun filterSingleOccurrences() {
+    truncationsFeatureSet.filterSingleOccurrences()
+  }
+
+  fun getTrainingData(): List<TrainingTableEntry> {
+    return truncationsFeatureSet.merge(trainingData)
   }
 }

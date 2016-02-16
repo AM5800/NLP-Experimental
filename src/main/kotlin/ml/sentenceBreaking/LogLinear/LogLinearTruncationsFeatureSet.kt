@@ -8,7 +8,7 @@ class LogLinearTruncationsFeatureSet {
   private val truncationsOccurrences = mutableMapOf<String, ArrayList<Int>>()
   private val truncationToK = mutableMapOf<String, Int>()
 
-  fun addTrainingSample(words: List<String>, offset: Int, tag: SentenceBreakerTag, index: Int) {
+  fun train(words: List<String>, offset: Int, tag: SentenceBreakerTag, index: Int) {
     if (tag != SentenceBreakerTag.Regular) return
 
     if (words[offset] != ".") return

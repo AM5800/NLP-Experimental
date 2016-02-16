@@ -9,9 +9,9 @@ class LogLinearTruncationsFeatureSetTest {
   fun testSeparatePeriod() {
     val featureSet = LogLinearTruncationsFeatureSet()
     val words = listOf("Dr", ".", "Schmidt")
-    featureSet.addTrainingSample(words, 0, SentenceBreakerTag.Regular, 0)
-    featureSet.addTrainingSample(words, 1, SentenceBreakerTag.Regular, 1)
-    featureSet.addTrainingSample(words, 2, SentenceBreakerTag.Regular, 2)
+    featureSet.train(words, 0, SentenceBreakerTag.Regular, 0)
+    featureSet.train(words, 1, SentenceBreakerTag.Regular, 1)
+    featureSet.train(words, 2, SentenceBreakerTag.Regular, 2)
 
     val p = featureSet.evaluate(words, 1, SentenceBreakerTag.Regular, listOf(1.0))
     assertEquals(1.0, p, 0.001)
@@ -23,9 +23,9 @@ class LogLinearTruncationsFeatureSetTest {
     val entry = TrainingTableEntry.create(SentenceBreakerTag.Regular, listOf({ tag -> tag == SentenceBreakerTag.Regular }))
 
     val words = listOf("Dr", ".", "Schmidt")
-    featureSet.addTrainingSample(words, 0, SentenceBreakerTag.Regular, 0)
-    featureSet.addTrainingSample(words, 1, SentenceBreakerTag.Regular, 1)
-    featureSet.addTrainingSample(words, 2, SentenceBreakerTag.Regular, 2)
+    featureSet.train(words, 0, SentenceBreakerTag.Regular, 0)
+    featureSet.train(words, 1, SentenceBreakerTag.Regular, 1)
+    featureSet.train(words, 2, SentenceBreakerTag.Regular, 2)
 
     val merged = featureSet.merge(listOf(entry, entry, entry))
 
@@ -44,9 +44,9 @@ class LogLinearTruncationsFeatureSetTest {
     val entry = TrainingTableEntry.create(SentenceBreakerTag.Regular, emptyList())
 
     val words = listOf("Dr", ".", "Schmidt")
-    featureSet.addTrainingSample(words, 0, SentenceBreakerTag.Regular, 0)
-    featureSet.addTrainingSample(words, 1, SentenceBreakerTag.Regular, 1)
-    featureSet.addTrainingSample(words, 2, SentenceBreakerTag.Regular, 2)
+    featureSet.train(words, 0, SentenceBreakerTag.Regular, 0)
+    featureSet.train(words, 1, SentenceBreakerTag.Regular, 1)
+    featureSet.train(words, 2, SentenceBreakerTag.Regular, 2)
 
     val merged = featureSet.merge(listOf(entry, entry, entry))
 

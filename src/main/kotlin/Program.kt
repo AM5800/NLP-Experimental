@@ -1,5 +1,5 @@
 import ml.sentenceBreaking.HeuristicSentenceBreaker
-import ml.sentenceBreaking.LogLinear.HandMadeFeatureSet
+import ml.sentenceBreaking.LogLinear.GroupingFeatureSet
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
 
   val heuristicBreaker = HeuristicSentenceBreaker()
 
-  val featureSet = HandMadeFeatureSet()
+  val featureSet = GroupingFeatureSet()
   val logLinearBreakerTrainer = LogLinearSentenceBreakerTrainer(featureSet, logger)
 
   val heuristicTrainer = SentenceBreakingHandler(heuristicBreaker)
@@ -58,20 +58,21 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
 
+  val lambdas = listOf(0.0, 20.0, 50.0, 100.0, 1000.0)
+  val bestLogLinearBreaker = lambdas
+          .map { lambda -> LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(lambda)) }
+          .maxBy { breaker ->
+            val performance = tester.getPerformance(breaker, crossValidationMaker.getTestData())
+            logger.info("Performance(λ=${breaker.trainedFeatureSet.lambda}): $performance")
+            performance
+          }!!
+  
+  println("Selected best log linear λ = ${bestLogLinearBreaker.trainedFeatureSet.lambda}")
+  val logLinearPerformance = tester.getPerformance(bestLogLinearBreaker, testMaker.getTestData())
+  println("LogLinear sentence breaking performance(λ=${bestLogLinearBreaker.trainedFeatureSet.lambda}): $logLinearPerformance")
+
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, testMaker.getTestData())
   println("Heuristic sentence breaking performance: $heuristicBreakerPerformance")
-
-  val lambdas = listOf(0.0, 20.0, 50.0, 100.0, 1000.0)
-  val trainedFeatureSets = lambdas.map { logLinearBreakerTrainer.getTrainedFeatureSet(it) }
-
-  val bestLogLinearBreaker = trainedFeatureSets
-          .map { LogLinearSentenceBreaker(it) }
-          .maxBy { breaker ->
-            tester.getPerformance(breaker, crossValidationMaker.getTestData())
-          }!!
-  println("Selected best log linear lambda = ${bestLogLinearBreaker.trainedFeatureSet.lambda}")
-  val logLinearPerformance = tester.getPerformance(bestLogLinearBreaker, testMaker.getTestData())
-  println("LogLinear sentence breaking performance: $logLinearPerformance")
 }
 
 fun initLogger(): Logger {
