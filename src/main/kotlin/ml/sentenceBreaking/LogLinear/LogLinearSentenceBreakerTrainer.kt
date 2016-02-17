@@ -13,7 +13,7 @@ fun Boolean.toInt(): Int {
   return 0
 }
 
-class LogLinearSentenceBreakerTrainer(private val featureSet: GroupingFeatureSet, private val logger: Logger) : TreebankParserHandler() {
+class LogLinearSentenceBreakerTrainer(private val featureSet: PriorityFeatureSet, private val logger: Logger) : TreebankParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {

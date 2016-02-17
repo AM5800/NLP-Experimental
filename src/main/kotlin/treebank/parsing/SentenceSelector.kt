@@ -21,7 +21,7 @@ class OnlyPlainSentenceSelector : SentenceSelector() {
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {
     if (currentSentence == null) return
-    if (word.indexOfAny("'\"`():/;".toCharArray()) != -1) currentSentence = null
+    if (word.indexOfAny("'\"`():/;_".toCharArray()) != -1) currentSentence = null
   }
 
   override fun endSentence() {

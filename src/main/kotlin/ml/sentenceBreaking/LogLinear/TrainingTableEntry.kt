@@ -1,6 +1,5 @@
 package ml.sentenceBreaking.LogLinear
 
-import com.google.common.collect.Multimap
 import ml.sentenceBreaking.SentenceBreakerTag
 
 class TrainingTableEntry private constructor(val correctTag: SentenceBreakerTag, private val values: List<BooleanArray>) {
@@ -40,9 +39,9 @@ class TrainingTableEntry private constructor(val correctTag: SentenceBreakerTag,
       return TrainingTableEntry(entry.correctTag, values)
     }
 
-    fun create(correctTag: SentenceBreakerTag, data: Multimap<SentenceBreakerTag, Boolean>): TrainingTableEntry {
+    fun create(correctTag: SentenceBreakerTag, data: Map<SentenceBreakerTag, BooleanArray>): TrainingTableEntry {
       val values = SentenceBreakerTag.values().map { tag ->
-        data[tag]?.toBooleanArray() ?: booleanArrayOf()
+        data[tag] ?: booleanArrayOf()
       }
 
       return TrainingTableEntry(correctTag, values)

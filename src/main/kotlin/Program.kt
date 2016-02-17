@@ -1,7 +1,7 @@
 import ml.sentenceBreaking.HeuristicSentenceBreaker
-import ml.sentenceBreaking.LogLinear.GroupingFeatureSet
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
+import ml.sentenceBreaking.LogLinear.PriorityFeatureSet
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler
@@ -34,12 +34,12 @@ fun main(args: Array<String>) {
 
   val heuristicBreaker = HeuristicSentenceBreaker()
 
-  val featureSet = GroupingFeatureSet()
+  val featureSet = PriorityFeatureSet()
   val logLinearBreakerTrainer = LogLinearSentenceBreakerTrainer(featureSet, logger)
 
   val heuristicTrainer = SentenceBreakingHandler(heuristicBreaker)
 
-  val trainingRange = RelativeRange(0, 80)
+  val trainingRange = RelativeRange(0, 70)
   val crossValidationRange = RelativeRange(trainingRange.end, 90)
   val testRange = RelativeRange(crossValidationRange.end, 100)
 
@@ -66,9 +66,9 @@ fun main(args: Array<String>) {
             logger.info("Performance(λ=${breaker.trainedFeatureSet.lambda}): $performance")
             performance
           }!!
-  
+
   println("Selected best log linear λ = ${bestLogLinearBreaker.trainedFeatureSet.lambda}")
-  val logLinearPerformance = tester.getPerformance(bestLogLinearBreaker, testMaker.getTestData())
+  val logLinearPerformance = tester.getPerformance(bestLogLinearBreaker, testMaker.getTestData(), true)
   println("LogLinear sentence breaking performance(λ=${bestLogLinearBreaker.trainedFeatureSet.lambda}): $logLinearPerformance")
 
   val heuristicBreakerPerformance = tester.getPerformance(heuristicBreaker, testMaker.getTestData())

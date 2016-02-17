@@ -3,7 +3,7 @@ package ml.sentenceBreaking.LogLinear
 import ml.sentenceBreaking.SentenceBreakerTag
 
 
-class TrainedFeatureSet(private val features: GroupingFeatureSet,
+class TrainedFeatureSet(private val features: PriorityFeatureSet,
                         private val vs: DoubleArray,
                         val lambda: Double) {
   val currentWordOffset = features.currentWordOffset
