@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
 
-  val lambdas = doubleArrayOf(0.0, 20.0, 50.0, 100.0, 1000.0)
+  val lambdas = doubleArrayOf(0.0, 1e-10, 1e-5, 1.0, 1e5, 1e10)
 
   val lambdasString = lambdas.map { it.toString() }.joinToString(", ")
   logger.info("Creating feature sets for λ=($lambdasString)")
