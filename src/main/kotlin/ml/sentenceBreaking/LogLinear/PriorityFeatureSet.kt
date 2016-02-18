@@ -19,6 +19,7 @@ class PriorityFeatureSet {
   init {
     features.add { ws, i, tag -> nonPeriod(ws, i, tag) }
     features.add { ws, i, tag -> periodLowercase(ws, i, tag) }
+    features.add { ws, i, tag -> periodNonNoun(ws, i, tag) }
     features.add { ws, i, tag -> numberPeriodNumber(ws, i, tag) }
     features.add { ws, i, tag -> charPeriod(ws, i, tag) }
     features.add { ws, i, tag -> upperNumberPeriod(ws, i, tag) }
@@ -26,20 +27,20 @@ class PriorityFeatureSet {
     features.add { ws, i, tag -> period(ws, i, tag) }
   }
 
-  private fun periodLowercase(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    if (words.size < index + 1) return false
+  private fun periodLowercase(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (words.size < offset + 1) return false
 
-    val word = words[index]
+    val word = words[offset]
     val isSentenceEndChar = SentenceBreakerUtils.isSentenceEndChar(word.last())
-    val nextIsLowercase = words[index + 1].first().isLowerCase()
+    val nextIsLowercase = words[offset + 1].first().isLowerCase()
     if (isSentenceEndChar && nextIsLowercase && tag == SentenceBreakerTag.Regular) {
       return true
     }
     return false
   }
 
-  private fun nonPeriod(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    val word = words[index]
+  private fun nonPeriod(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    val word = words[offset]
     val isSentenceEndChar = word.indexOfAny(charArrayOf('!', '?')) != -1// word.contains("!\\?")// SentenceBreakerUtils.isSentenceEndChar(word.last())
     val isPeriod = word.last() == '.'
 
@@ -56,23 +57,36 @@ class PriorityFeatureSet {
     return tag == SentenceBreakerTag.SentenceBreak && word.endsWith('.')
   }
 
-  private fun numberPeriodNumber(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
-    return SentenceBreakerUtils.isNumber(words[index - 1]) && SentenceBreakerUtils.isNumber(words[index + 1])
+  private fun numberPeriodNumber(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[offset] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+    return SentenceBreakerUtils.isNumber(words[offset - 1]) && SentenceBreakerUtils.isNumber(words[offset + 1])
   }
 
-  private fun numberPeriod(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
-    return SentenceBreakerUtils.isNumber(words[index - 1])
+  private fun numberPeriod(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[offset] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+    return SentenceBreakerUtils.isNumber(words[offset - 1])
   }
 
-  private fun charPeriod(words: List<String>, index: Int, tag: SentenceBreakerTag): Boolean {
-    if (words[index] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
+  private fun charPeriod(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (words[offset] != "." || tag == SentenceBreakerTag.SentenceBreak) return false
 
-    val prevWord = words[index - 1]
+    val prevWord = words[offset - 1]
     val result = prevWord.length == 1 && prevWord.first().isLetter()
 
     return result
+  }
+
+  private fun periodNonNoun(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
+    if (tag != SentenceBreakerTag.SentenceBreak) return false
+    if (words[offset] != ".") return false
+
+    val nextWord = words[offset + 1]
+    if (!nextWord.first().isLetter() || !nextWord.first().isUpperCase()) return false
+
+    return when (nextWord.toLowerCase()) {
+      "die", "der", "den", "das", "nach", "auch", "in", "von", "um" -> true
+      else -> false
+    }
   }
 
   private fun upperNumberPeriod(words: List<String>, offset: Int, tag: SentenceBreakerTag): Boolean {
