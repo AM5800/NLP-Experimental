@@ -2,6 +2,7 @@ import ml.sentenceBreaking.HeuristicSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
 import ml.sentenceBreaking.LogLinear.PriorityFeatureSet
+import ml.sentenceBreaking.LogLinear.TrainedFeatureSet
 import ml.sentenceBreaking.SentenceBreakerPerformanceTester
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler
@@ -15,6 +16,7 @@ import treebank.parsing.TreexParser
 import treebank.parsing.shuffling.RelativeRange
 import treebank.parsing.shuffling.TreebankShuffleRepository
 import java.io.File
+import java.util.*
 import java.util.logging.ConsoleHandler
 import java.util.logging.Formatter
 import java.util.logging.LogRecord
@@ -58,9 +60,16 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
 
-  val lambdas = listOf(0.0, 20.0, 50.0, 100.0, 1000.0)
-  val bestLogLinearBreaker = lambdas
-          .map { lambda -> LogLinearSentenceBreaker(logLinearBreakerTrainer.getTrainedFeatureSet(lambda)) }
+  val lambdas = doubleArrayOf(0.0, 20.0, 50.0, 100.0, 1000.0)
+
+  val lambdasString = lambdas.map { it.toString() }.joinToString(", ")
+  logger.info("Creating feature sets for λ=($lambdasString)")
+
+  val featureSets = Arrays.stream(lambdas).parallel().mapToObj { lambda -> logLinearBreakerTrainer.createTrainedFeatureSet(lambda) }.toArray().filterIsInstance<TrainedFeatureSet>()
+  logger.info("Feature sets created")
+
+  val bestLogLinearBreaker = featureSets
+          .map { fs -> LogLinearSentenceBreaker(fs) }
           .maxBy { breaker ->
             val performance = tester.getPerformance(breaker, crossValidationMaker.getTestData())
             logger.info("Performance(λ=${breaker.trainedFeatureSet.lambda}): $performance")
