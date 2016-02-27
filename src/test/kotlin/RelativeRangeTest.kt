@@ -1,6 +1,6 @@
+import corpus.parsing.shuffling.RelativeRange
 import org.junit.Assert
 import org.junit.Test
-import treebank.parsing.shuffling.RelativeRange
 
 class RelativeRangeTest {
   @Test

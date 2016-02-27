@@ -1,15 +1,16 @@
-package treebank.parsing
+package corpus.parsing
 
+import corpus.CorpusInfo
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
-import treebank.TreebankInfo
+import java.io.File
 import javax.xml.parsers.SAXParserFactory
 
 
-class NegraParser : TreebankParser {
+class NegraParser : CorpusParser {
   override val ParserId: String = "NEGRA4"
 
-  private class SaxHandler(private val handler: TreebankParserHandler) : DefaultHandler() {
+  private class SaxHandler(private val handler: CorpusParserHandler) : DefaultHandler() {
 
     private var inSentence = false
 
@@ -68,14 +69,15 @@ class NegraParser : TreebankParser {
     }
   }
 
-  override fun parse(info: TreebankInfo, handler: TreebankParserHandler) {
+  override fun parse(info: CorpusInfo, handler: CorpusParserHandler) {
     assert(info.formatId == ParserId)
 
     val factory = SAXParserFactory.newInstance()
     val parser = factory.newSAXParser()
-    handler.beginTreebank(info)
-    parser.parse(info.treebankPath, SaxHandler(handler))
-    handler.endTreebank()
+    handler.beginCorpus(info)
+    val path = File(info.infoFile.parentFile, info.metadata["path"])
+    parser.parse(path, SaxHandler(handler))
+    handler.endCorpus()
   }
 }
 

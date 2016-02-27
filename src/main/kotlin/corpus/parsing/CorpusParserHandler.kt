@@ -1,11 +1,11 @@
-package treebank.parsing
+package corpus.parsing
 
-import treebank.TreebankInfo
+import corpus.CorpusInfo
 
 
-open class TreebankParserHandler {
+open class CorpusParserHandler {
 
-  open fun beginTreebank(info: TreebankInfo) {
+  open fun beginCorpus(info: CorpusInfo) {
   }
 
   open fun beginSentence(id: String) {
@@ -17,6 +17,6 @@ open class TreebankParserHandler {
   open fun endSentence() {
   }
 
-  open fun endTreebank() {
+  open fun endCorpus() {
   }
 }

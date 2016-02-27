@@ -1,6 +1,6 @@
-package treebank.parsing
+package corpus.parsing
 
-abstract class SentenceSelector : TreebankParserHandler() {
+abstract class SentenceSelector : CorpusParserHandler() {
   abstract fun getIds(): List<String>
 
   abstract fun clear()

@@ -1,9 +1,9 @@
+import corpus.CorpusInfo
+import corpus.parsing.CorpusParserHandler
+import corpus.parsing.ParsePartOfSpeech
+import corpus.parsing.TreexParser
 import org.junit.Assert
 import org.junit.Test
-import treebank.TreebankInfo
-import treebank.parsing.ParsePartOfSpeech
-import treebank.parsing.TreebankParserHandler
-import treebank.parsing.TreexParser
 import java.io.File
 import java.util.*
 
@@ -12,7 +12,7 @@ class TreexParserTest {
                  val lemma: String,
                  val pos: ParsePartOfSpeech?)
 
-  class TestHandler(private val index: Int) : TreebankParserHandler() {
+  class TestHandler(private val index: Int) : CorpusParserHandler() {
     val words = ArrayList<TestWord>()
 
     private var currentSentence = 0;
@@ -27,7 +27,7 @@ class TreexParserTest {
     }
   }
 
-  private val info = TreebankInfo(File("testData\\treex"), "treex", File("testData\\treex"), emptyMap<String, String>())
+  private val info = CorpusInfo(File("testData\\treex"), "treex", File("testData\\treex"), emptyMap<String, String>())
 
   @Test
   fun test0() {

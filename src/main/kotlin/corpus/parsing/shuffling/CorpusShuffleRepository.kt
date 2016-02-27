@@ -1,10 +1,10 @@
-package treebank.parsing.shuffling
+package corpus.parsing.shuffling
 
-import treebank.TreebankInfo
-import treebank.TreebankRepository
-import treebank.parsing.SentenceSelector
-import treebank.parsing.TreebankParserHandler
-import treebank.parsing.TreebankParsersSet
+import corpus.CorpusInfo
+import corpus.CorpusRepository
+import corpus.parsing.CorpusParserHandler
+import corpus.parsing.CorpusParsersSet
+import corpus.parsing.SentenceSelector
 import util.shuffle
 import java.io.BufferedReader
 import java.io.File
@@ -14,19 +14,19 @@ import java.util.*
 import java.util.logging.Logger
 
 
-class TreebankShuffleRepository(private val treebanksRepo: TreebankRepository,
-                                private val parsers: TreebankParsersSet,
-                                private val logger: Logger) {
+class CorpusShuffleRepository(private val repo: CorpusRepository,
+                              private val parsers: CorpusParsersSet,
+                              private val logger: Logger) {
 
   fun shuffleIfNeeded(selector: SentenceSelector) {
-    for (treebankInfo in treebanksRepo.getTreebanks()) {
-      val shuffleFilePath = getShufflePath(treebankInfo) // TODO better error handling
+    for (info in repo.getCorpuses()) {
+      val shuffleFilePath = getShufflePath(info) // TODO better error handling
       if (shuffleFilePath.exists()) continue
 
       logger.info("Shuffling $shuffleFilePath")
 
       selector.clear()
-      parsers.parse(treebankInfo, selector)
+      parsers.parse(info, selector)
       val ids = selector.getIds()
 
       val shuffled = ids.shuffle()
@@ -40,15 +40,15 @@ class TreebankShuffleRepository(private val treebanksRepo: TreebankRepository,
     }
   }
 
-  private fun getShufflePath(treebankInfo: TreebankInfo): File {
-    return File(treebankInfo.infoFile.parentFile, treebankInfo.metadata["shuffleFile"]!!)
+  private fun getShufflePath(corpusInfo: CorpusInfo): File {
+    return File(corpusInfo.infoFile.parentFile, corpusInfo.metadata["shuffleFile"]!!)
   }
 
-  fun newHandler(handler: TreebankParserHandler, range: RelativeRange): TreebankParserHandler {
-    return ReadTreebankShuffleHandler(this, handler, range)
+  fun newHandler(handler: CorpusParserHandler, range: RelativeRange): CorpusParserHandler {
+    return ReadCorpusShuffleHandler(this, handler, range)
   }
 
-  fun getShuffle(info: TreebankInfo): HashMap<String, Int>? {
+  fun getShuffle(info: CorpusInfo): HashMap<String, Int>? {
     val shuffleFile = getShufflePath(info)
     return loadShuffleInfo(shuffleFile)
   }

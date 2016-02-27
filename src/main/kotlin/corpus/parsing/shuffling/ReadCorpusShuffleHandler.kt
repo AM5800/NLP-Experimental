@@ -1,19 +1,19 @@
-package treebank.parsing.shuffling
+package corpus.parsing.shuffling
 
-import treebank.TreebankInfo
-import treebank.parsing.ParsePartOfSpeech
-import treebank.parsing.TreebankParserHandler
+import corpus.CorpusInfo
+import corpus.parsing.CorpusParserHandler
+import corpus.parsing.ParsePartOfSpeech
 import java.util.*
 
 
-class ReadTreebankShuffleHandler(private val repository: TreebankShuffleRepository,
-                                 private val original: TreebankParserHandler,
-                                 private val range: RelativeRange) : TreebankParserHandler() {
+class ReadCorpusShuffleHandler(private val repository: CorpusShuffleRepository,
+                               private val original: CorpusParserHandler,
+                               private val range: RelativeRange) : CorpusParserHandler() {
   private var shuffle: HashMap<String, Int>? = null
   private var skip = false
   private var currentSentence: String = ""
 
-  override fun beginTreebank(info: TreebankInfo) {
+  override fun beginCorpus(info: CorpusInfo) {
     shuffle = repository.getShuffle(info)
   }
 
@@ -40,9 +40,9 @@ class ReadTreebankShuffleHandler(private val repository: TreebankShuffleReposito
     }
   }
 
-  override fun endTreebank() {
+  override fun endCorpus() {
     if (!skip) {
-      original.endTreebank()
+      original.endCorpus()
     }
   }
 }

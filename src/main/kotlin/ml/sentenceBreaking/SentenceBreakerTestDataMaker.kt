@@ -1,13 +1,13 @@
 package ml.sentenceBreaking
 
-import treebank.parsing.ParsePartOfSpeech
-import treebank.parsing.TreebankParserHandler
+import corpus.parsing.CorpusParserHandler
+import corpus.parsing.ParsePartOfSpeech
 import java.util.*
 
 class SentenceBreakerTestData(val text: String, val sentenceBreaks: List<Int>)
 
 
-class SentenceBreakerTestDataMaker : TreebankParserHandler() {
+class SentenceBreakerTestDataMaker : CorpusParserHandler() {
   private val builder = StringBuilder()
   private val sentenceBreaks = arrayListOf<Int>()
   private val bracketsSymbols = setOf("(", ")", "<", ">", "[", "]", "{", "}")
@@ -60,8 +60,8 @@ class SentenceBreakerTestDataMaker : TreebankParserHandler() {
     sentenceBreaks.add(builder.length - 1)
   }
 
-  override fun endTreebank() {
-    super.endTreebank()
+  override fun endCorpus() {
+    super.endCorpus()
   }
 
   fun getTestData(): SentenceBreakerTestData {

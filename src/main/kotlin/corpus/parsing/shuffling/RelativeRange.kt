@@ -1,4 +1,4 @@
-package treebank.parsing.shuffling
+package corpus.parsing.shuffling
 
 class RelativeRange(val start: Int, val end: Int) {
   init {

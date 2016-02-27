@@ -1,18 +1,18 @@
-package treebank.parsing
+package corpus.parsing
 
+import corpus.CorpusInfo
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
-import treebank.TreebankInfo
 import java.io.File
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
 
 
-class TreexParser : TreebankParser {
+class TreexParser : CorpusParser {
   override val ParserId: String = "Treex"
 
-  private class SaxHandler(private val handler: TreebankParserHandler,
-                           private val treebankName: String) : DefaultHandler() {
+  private class SaxHandler(private val handler: CorpusParserHandler,
+                           private val corpusName: String) : DefaultHandler() {
 
     private class TreexWord(val word: String, val lemma: String, val pos: ParsePartOfSpeech?, val ord: Int)
 
@@ -42,7 +42,7 @@ class TreexParser : TreebankParser {
     }
 
     private fun makeId(attributes: Attributes?): String {
-      return treebankName + attributes?.getValue("id")!!
+      return corpusName + attributes?.getValue("id")!!
     }
 
     override fun endElement(uri: String?, localName: String?, qName: String?) {
@@ -91,17 +91,17 @@ class TreexParser : TreebankParser {
     }
   }
 
-  override fun parse(info: TreebankInfo, handler: TreebankParserHandler) {
-    val treebankFiles = expandPath(info.treebankPath)
+  override fun parse(info: CorpusInfo, handler: CorpusParserHandler) {
+    val files = expandPath(File(info.metadata["path"]))
 
     val factory = SAXParserFactory.newInstance()
     val parser = factory.newSAXParser()
 
-    handler.beginTreebank(info)
-    for (treebank in treebankFiles) {
-      parser.parse(treebank, SaxHandler(handler, treebank.nameWithoutExtension))
+    handler.beginCorpus(info)
+    for (corpus in files) {
+      parser.parse(corpus, SaxHandler(handler, corpus.nameWithoutExtension))
     }
-    handler.endTreebank()
+    handler.endCorpus()
   }
 
   private fun expandPath(path: File): List<File> {

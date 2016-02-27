@@ -2,9 +2,9 @@ package ml.sentenceBreaking.LogLinear
 
 import com.github.lbfgs4j.LbfgsMinimizer
 import com.github.lbfgs4j.liblbfgs.Function
+import corpus.parsing.CorpusParserHandler
+import corpus.parsing.ParsePartOfSpeech
 import ml.sentenceBreaking.SentenceBreakerTag
-import treebank.parsing.ParsePartOfSpeech
-import treebank.parsing.TreebankParserHandler
 import java.util.*
 import java.util.logging.Logger
 
@@ -13,7 +13,7 @@ fun Boolean.toInt(): Int {
   return 0
 }
 
-class LogLinearSentenceBreakerTrainer(private val featureSet: PriorityFeatureSet, private val logger: Logger) : TreebankParserHandler() {
+class LogLinearSentenceBreakerTrainer(private val featureSet: PriorityFeatureSet, private val logger: Logger) : CorpusParserHandler() {
   private val queue = LinkedList<Pair<String, SentenceBreakerTag>>()
 
   override fun word(word: String, lemma: String, pos: ParsePartOfSpeech?) {

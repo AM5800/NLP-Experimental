@@ -1,3 +1,10 @@
+import corpus.CorpusRepository
+import corpus.parsing.CorpusParsersSet
+import corpus.parsing.NegraParser
+import corpus.parsing.OnlyPlainSentenceSelector
+import corpus.parsing.TreexParser
+import corpus.parsing.shuffling.CorpusShuffleRepository
+import corpus.parsing.shuffling.RelativeRange
 import ml.sentenceBreaking.HeuristicSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreaker
 import ml.sentenceBreaking.LogLinear.LogLinearSentenceBreakerTrainer
@@ -8,13 +15,6 @@ import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import ml.sentenceBreaking.SentenceBreakingHandler
 import org.joda.time.Duration
 import org.joda.time.format.PeriodFormatterBuilder
-import treebank.TreebankRepository
-import treebank.parsing.NegraParser
-import treebank.parsing.OnlyPlainSentenceSelector
-import treebank.parsing.TreebankParsersSet
-import treebank.parsing.TreexParser
-import treebank.parsing.shuffling.RelativeRange
-import treebank.parsing.shuffling.TreebankShuffleRepository
 import java.io.File
 import java.util.*
 import java.util.logging.ConsoleHandler
@@ -25,12 +25,12 @@ import java.util.logging.Logger
 fun main(args: Array<String>) {
   val logger = initLogger()
 
-  val treebanksRepo = TreebankRepository(File("data\\corpuses\\"))
-  val parsers = TreebankParsersSet()
+  val corpuses = CorpusRepository(File("data\\corpuses\\"))
+  val parsers = CorpusParsersSet()
   parsers.registerParser(NegraParser())
   parsers.registerParser(TreexParser())
 
-  val seedRepo = TreebankShuffleRepository(treebanksRepo, parsers, logger)
+  val seedRepo = CorpusShuffleRepository(corpuses, parsers, logger)
 
   seedRepo.shuffleIfNeeded(OnlyPlainSentenceSelector())
 
@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
   val testMaker = SentenceBreakerTestDataMaker()
 
   logger.info("Parsing treebanks")
-  parsers.parse(treebanksRepo.getTreebanks().first { it.treebankPath.absolutePath.contains("TIGER", true) },
+  parsers.parse(corpuses.getCorpuses().first { it.infoFile.nameWithoutExtension.equals("TIGER", true) },
           seedRepo.newHandler(heuristicTrainer, trainingRange),
           seedRepo.newHandler(crossValidationMaker, crossValidationRange),
           seedRepo.newHandler(testMaker, testRange),
@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
 
   val tester = SentenceBreakerPerformanceTester()
 
-  val lambdas = doubleArrayOf(0.0, 1e-10, 1e-5, 1.0, 1e5, 1e10)
+  val lambdas = doubleArrayOf(0.0, 1e-10, 1e-5, 1e-2, 0.25, 0.5, 1.0, 20.0, 500.0, 1e5, 1e10)
 
   val lambdasString = lambdas.map { it.toString() }.joinToString(", ")
   logger.info("Creating feature sets for λ=($lambdasString)")

@@ -1,7 +1,7 @@
+import corpus.parsing.ParsePartOfSpeech
 import ml.sentenceBreaking.SentenceBreakerTestDataMaker
 import org.junit.Assert
 import org.junit.Test
-import treebank.parsing.ParsePartOfSpeech
 
 class SentenceBreakerTestDataMakerTest {
   @Test

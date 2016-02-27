@@ -1,4 +1,4 @@
-package treebank.parsing
+package corpus.parsing
 
 
 enum class ParsePartOfSpeech {
